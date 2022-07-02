@@ -92,6 +92,26 @@
 	</div>
 
 <?php pie(); ?>
+<script>
+  const { createApp } = Vue
+
+  createApp({
+    data() {
+      return {
+        categorias:[]
+      }
+    },
+		mounted(){
+			this.cargarDatos();
+		},
+		methods:{
+			async cargarDatos(){
+				let respServ = await fetch('./api/pedirCategorias.php');
+				console.log(await respServ.text())
+			}
+		}
+  }).mount('#app')
+</script>
 
 </body>
 </html>

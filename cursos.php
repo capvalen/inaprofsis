@@ -72,26 +72,106 @@
 					</select>
 					<label for="">Nombre de curso</label>
 					<input type="text" class="form-control">
-					<label for="">Acuerdos del convenio</label>
-					<textarea class="form-control" rows="3"></textarea>
-					<label for="">Autoridades por año</label>
-					<textarea class="form-control" rows="3"></textarea>
-					<label for="">Teléfono</label>
+					<label for="">Código de curso</label>
 					<input type="text" class="form-control">
-					<label for="">Celular</label>
-					<input type="text" class="form-control">
-					<label for="">Web</label>
-					<input type="text" class="form-control">
-					<label for="">Categoría</label>
+					<label for="">Modalidad</label>
 					<select class="form-select" id="">
-						<option value="1">Derecho gubernamental</option>
-						<option value="2">Estudio de abogados</option>
-						<option value="3">Entidades privadas</option>
+						<option value="1">Presencial</option>
+						<option value="2">Virtual online</option>
+						<option value="2">Virtual asíncrono</option>
+						<option value="3">Híbrido</option>
 					</select>
-					<label for="">Observaciones</label>
+					<label for="">Fecha de inicio</label>
+					<input type="date" class="form-control">
+					<label for="">Fechas de desarrollo (link)</label>
+					<input type="text" class="form-control">
+					<label for="">Horas académidas</label>
+					<select class="form-select" id="">
+						<option value="1">160</option>
+						<option value="2">240</option>
+						<option value="2">60</option>
+						<option value="3">24</option>
+						<option value="4">12</option>
+					</select>
+					<label for="">Convenio</label>
+					<select class="form-select" id="">
+						<option value="1">MINJUS</option>
+						<option value="2">CAL</option>
+						<option value="3">CAJ</option>
+						<option value="4">CEC</option>
+						<option value="5">CAC</option>
+					</select>
+					<label class="fw-bold">Precios</label>
+					<div class="row row-cols-2">
+						<div class="col">
+							<label for="">General</label>
+							<input type="number" class="form-control">
+						</div>
+						<div class="col">
+							<label for="">Ex alumnos</label>
+							<input type="number" class="form-control">
+						</div>
+						<div class="col">
+							<label for="">Corporativo</label>
+							<input type="number" class="form-control">
+						</div>
+						<div class="col">
+							<label for="">Pronto pago</label>
+							<input type="number" class="form-control">
+						</div>
+						<div class="col">
+							<label for="">Remate</label>
+							<input type="number" class="form-control">
+						</div>
+						<div class="col">
+							<label for="">Media beca</label>
+							<input type="number" class="form-control">
+						</div>
+						<div class="col">
+							<label for="">Especial</label>
+							<input type="number" class="form-control">
+						</div>
+					</div>
+					<label for="">Docente original</label>
+					<select class="form-select" id="">
+						<option value="-1">NINGUNO</option>
+						<option value="1">PARIONA VALENCIA CARLOS</option>
+						<option value="2">GUZMAN OSORIO MELISA</option>
+						<option value="3">HERRERA CHAVEZ GIOVANA</option>
+					</select>
+					<label for="">Docente de reemplazo</label>
+					<select class="form-select" id="">
+						<option value="-1">NINGUNO</option>
+						<option value="1">PARIONA VALENCIA CARLOS</option>
+						<option value="2">GUZMAN OSORIO MELISA</option>
+						<option value="3">HERRERA CHAVEZ GIOVANA</option>
+					</select>
+					<label for="">Temario</label>
+					<input type="text" class="form-control">
+					<label for="">Tipo de certificado</label>
+					<select class="form-select" id="">
+						<option value="1">Físico</option>
+						<option value="2">Digital</option>
+						<option value="3">Digital y físico</option>
+					</select>
+					<label for="">Brochure (link)</label>
+					<input type="text" class="form-control">
+					<label for="">Etapa del curso</label>
+					<select class="form-select" id="">
+						<option value="1">- POR INICIAR</option>
+						<option value="2">EN CURSO</option>
+						<option value="3">PROCESO DE CERTIFICACIÓN</option>
+						<option value="4">PROCESO DE ACREDITACIÓN</option>
+					</select>
+					<label for="">Detalles</label>
 					<textarea class="form-control" rows="3"></textarea>
+					<label for="">Data de alumnos (link)</label>
+					<input type="text" class="form-control">
+					<label for="">Vacantes disponibles</label>
+					<input type="text" class="form-control">
+
 					<div class="d-grid mt-2">
-						<button class="btn btn-outline-primary">Agregar convenio</button>
+						<button class="btn btn-outline-primary">Agregar curso</button>
 					</div>
 					
 					</div>

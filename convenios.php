@@ -31,16 +31,16 @@
 							<th>@</th>
 						</thead>
 						<tbody>
-							<tr>
-								<td>1</td>
-								<td>San Pedro Gallo de Juliaca</td>
-								<td>Luis Garcia Meza</td>
-								<td>14/05/2022</td>
-								<td>2000-2030</td>
-								<td>965200087</td>
+							<tr v-for="(convenio, index) in convenios" :key="convenio.id">
+								<td>{{index+1}}</td>
+								<td>{{convenio.entidad}}</td>
+								<td>{{convenio.representante}}</td>
+								<td>{{convenio.fecha}}</td>
+								<td>{{convenio.periodo}}</td>
+								<td>{{convenio.celular}}</td>
 								<td>
-									<button type="button" class="btn btn-outline-primary btn-sm border-0"><i class="bi bi-pencil-square"></i></button>
-									<button type="button" class="btn btn-outline-danger btn-sm border-0"><i class="bi bi-x-circle-fill"></i></button>
+									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarConvenio(index, convenio.id)"><i class="bi bi-pencil-square"></i></button>
+									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarConvenio(convenio.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
 							</tr>
 						</tbody>
@@ -54,33 +54,34 @@
 
 					<p class="fw-bold">Ingreso nuevo registro</p>
 					<label for="">Entidad</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="convenio.entidad">
 					<label for="">Representante</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="convenio.representante">
 					<label for="">Fecha de suscripción</label>
-					<input type="date" class="form-control">
-					<label for="">Periodo de convenio</label>
-					<input type="text" class="form-control">
+					<input type="date" class="form-control" v-model="convenio.fecha">
+					<label for="">Periodo de convenio</label >
+					<input type="text" class="form-control" v-model="convenio.periodo">
 					<label for="">Acuerdos del convenio</label>
-					<textarea class="form-control" rows="3"></textarea>
+					<textarea class="form-control" rows="3" v-model="convenio.acuerdos"></textarea>
 					<label for="">Autoridades por año</label>
-					<textarea class="form-control" rows="3"></textarea>
+					<textarea class="form-control" rows="3" v-model="convenio.autoridades"></textarea>
 					<label for="">Teléfono</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="convenio.telefono">
 					<label for="">Celular</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="convenio.celular">
 					<label for="">Web</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="convenio.web">
 					<label for="">Categoría</label>
-					<select class="form-select" id="">
-						<option value="1">Derecho gubernamental</option>
-						<option value="2">Estudio de abogados</option>
-						<option value="3">Entidades privadas</option>
+					<select class="form-select" id=""  v-model="convenio.idCategoria">
+						<option v-for="categoria in categorias" :value="categoria.id">{{categoria.descripcion}}</option>
 					</select>
 					<label for="">Observaciones</label>
-					<textarea class="form-control" rows="3"></textarea>
-					<div class="d-grid mt-2">
-						<button class="btn btn-outline-primary">Agregar convenio</button>
+					<textarea class="form-control" rows="3" v-model="convenio.observaciones"></textarea>
+					<div class="d-grid mt-2" v-if="!actualizacion">
+						<button class="btn btn-outline-primary" @click="agregarConvenio()"><i class="bi bi-cloud-plus"></i> Agregar convenio</button>
+					</div>
+					<div class="d-grid mt-2" v-else>
+						<button class="btn btn-outline-success" @click="actualizarConvenio()"><i class="bi bi-pencil-square"></i> Actualizar convenio</button>
 					</div>
 					
 					</div>
@@ -98,16 +99,91 @@
   createApp({
     data() {
       return {
-        categorias:[]
+        categorias:[], convenios:[], actualizacion:false,
+				convenio :{
+					entidad:'',representante:'',fecha:null,periodo:'',acuerdos:'',
+					autoridades:'',telefono:'',celular:'',web:'',idCategoria: 1,observaciones:''
+				}
       }
     },
 		mounted(){
+			this.pedirConvenios();
 			this.cargarDatos();
 		},
 		methods:{
+			async pedirConvenios(){
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				let respServ = await fetch('./api/Convenio.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.json();
+				this.convenios = resp;
+			},
 			async cargarDatos(){
-				let respServ = await fetch('./api/pedirCategorias.php');
-				console.log(await respServ.text())
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				let respServ = await fetch('./api/Categorias.php',{
+					method: 'POST', body:data
+				});
+				this.categorias = await respServ.json()
+			},
+			async agregarConvenio(){
+				let data = new FormData();
+				data.append('pedir', 'add')
+				data.append('convenio', JSON.stringify(this.convenio));
+				let respServ = await fetch('./api/Convenio.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text()
+				if(parseInt(resp) >=1){
+					this.convenios.push( {'id': 'resp', ...this.convenio});
+					alert('Convenio guardado exitosamente')
+				}
+			},
+			editarConvenio(mIndex,id){
+				/* let temp = [].slice.call(this.convenios)
+				this.convenio = temp[mIndex]; */
+				/* this.convenios.forEach((element, index) => {
+					if( index == mIndex){
+						this.convenio = element;
+					}
+				}); */
+				this.queIndex = mIndex;
+				this.convenio = JSON.parse(JSON.stringify(this.convenios[mIndex]));
+				// Array.from([mIndex]); //.find( x=> x.id == id )
+				this.actualizacion=true;
+			},
+			async actualizarConvenio(){
+				let data = new FormData();
+				data.append('pedir', 'update')
+				data.append('convenio', JSON.stringify(this.convenio));
+				let respServ = await fetch('./api/Convenio.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text()
+				if(parseInt(resp) ==1){
+					this.convenios[this.queIndex] = this.convenio;
+					this.convenio = [];
+					this.actualizacion=false;
+					alert('Convenio actualizado exitosamente')
+				}
+			},
+			async eliminarConvenio(id, index){
+				if( confirm(`¿Desea eliminar el convenio de la entidad ${this.convenios[index].entidad}?`) ){
+					let data = new FormData();
+					data.append('pedir', 'delete')
+					data.append('id', id)
+					data.append('convenio', JSON.stringify(this.convenio));
+					let respServ = await fetch('./api/Convenio.php',{
+						method: 'POST', body:data
+					});
+					let resp = await respServ.text()
+					if(resp == 'ok'){
+						this.convenios.splice(index,1);
+					}
+				}
+
 			}
 		}
   }).mount('#app')

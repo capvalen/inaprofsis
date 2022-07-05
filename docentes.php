@@ -24,22 +24,21 @@
 						<thead>
 							<th>N°</th>
 							<th>Apellidos y nombres</th>
-							<th>Representante</th>
-							<th>Fecha</th>
-							<th>Periodo</th>
+							<th>Especialidad</th>
+							<th>Correo</th>
 							<th>Celular</th>
 							<th>@</th>
 						</thead>
 						<tbody>
-							<tr>
-								<td>1</td>
-								<td>Luis Garcia Meza</td>
-								<td>14/05/2022</td>
-								<td>2000-2030</td>
-								<td>965200087</td>
+							<tr v-for="(docente, index) in docentes" :key="docente.id">
+								<td>{{index+1}}</td>
+								<td>{{docente.apellidos}} {{docente.nombres}}</td>
+								<td>{{fechaLatam(docente.fechaNacimiento)}}</td>
+								<td>{{docente.correo1}}</td>
+								<td>{{docente.celular1}}</td>
 								<td>
-									<button type="button" class="btn btn-outline-primary btn-sm border-0"><i class="bi bi-pencil-square"></i></button>
-									<button type="button" class="btn btn-outline-danger btn-sm border-0"><i class="bi bi-x-circle-fill"></i></button>
+								<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarDocente(index)"><i class="bi bi-pencil-square"></i></button>
+									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarDocente(docente.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
 							</tr>
 						</tbody>
@@ -52,45 +51,46 @@
 					<div class="card-body">
 					<p class="fw-bold">Ingreso nuevo registro</p>
 					<label for="">Especialidad</label>
-					<select class="form-select" id="">
-						<option value="1">Derecho gubernamental</option>
-						<option value="2">Estudio de abogados</option>
-						<option value="3">Entidades privadas</option>
+					<select class="form-select" v-model="docente.idEspecialidad">
+						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
 					</select>
 					<label for="">Nombres</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.nombres">
 					<label for="">Apellidos</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.apellidos">
 					<label for="">D.N.I.</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.dni">
 					<label for="">Fecha de nacimiento</label>
-					<input type="date" class="form-control">
+					<input type="date" class="form-control"  v-model="docente.fechaNacimiento">
 					<label for="">Celular 1</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.celular1">
 					<label for="">Celular 2</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.celular2">
 					<label for="">Correo 1</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.correo1">
 					<label for="">Correo 2</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.correo2">
 					<label for="">N° Registro Conciliador 1</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.registroConciliador1">
 					<label for="">N° Registro Conciliador 2</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.registroConciliador2">
 					<label for="">N° Registro Capacitador</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.registroCapacitador">
 					<label for="">Dirección</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.direccion">
 					<label for="">Lugar de trabajo</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.lugarTrabajo">
 					<label for="">N° Hijos</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control"  v-model="docente.hijos">
 					<label for="">Particuliaridades del docente</label>
-					<textarea class="form-control" rows="3"></textarea>
+					<textarea class="form-control" rows="3"  v-model="docente.particularidades"></textarea>
 					<label for="">Hoja de vida</label>
-					<input type="file" class="form-control">
-					<div class="d-grid mt-2">
-						<button class="btn btn-outline-primary">Agregar docente</button>
+					<input type="file" class="form-control"  >
+					<div class="d-grid mt-2" v-if="!actualizacion">
+						<button class="btn btn-outline-primary" @click="agregarDocente()"><i class="bi bi-cloud-plus"></i> Agregar docente</button>
+					</div>
+					<div class="d-grid mt-2" v-else>
+						<button class="btn btn-outline-success" @click="actualizarDocente()"><i class="bi bi-pencil-square"></i> Actualizar docente</button>
 					</div>
 					</div>
 				</div>
@@ -101,6 +101,96 @@
 	</div>
 
 <?php pie(); ?>
+<script src="js/moment.min.js"></script>
+<script>
+  const { createApp } = Vue
 
+  createApp({
+    data() {
+      return {
+				docentes:[], especialidades:[], docentes:[], actualizacion:false,
+				docente :{
+					idEspecialidad:1,
+					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
+				}
+      }
+    },
+		mounted(){
+			this.pedirDocentes();
+			this.cargarDatos();
+		},
+		methods:{
+			async pedirDocentes(){
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				let respServ = await fetch('./api/Docente.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.json();
+				this.docentes = resp;
+			},
+			async cargarDatos(){
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				let respServ = await fetch('./api/Especialidad.php',{
+					method: 'POST', body:data
+				});
+				this.especialidades = await respServ.json()
+			},
+			async agregarDocente(){
+				let data = new FormData();
+				data.append('pedir', 'add')
+				data.append('docente', JSON.stringify(this.docente));
+				let respServ = await fetch('./api/Docente.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text()
+				if(parseInt(resp) >=1){
+					this.docentes.push( {'id': 'resp', ...this.docente});
+					alert('Docente guardado exitosamente')
+				}
+			},
+			editarDocente(mIndex){
+				this.queIndex = mIndex;
+				this.docente = JSON.parse(JSON.stringify(this.docentes[mIndex]));
+				this.actualizacion=true;
+			},
+			async actualizarDocente(){
+				let data = new FormData();
+				data.append('pedir', 'update')
+				data.append('docente', JSON.stringify(this.docente));
+				let respServ = await fetch('./api/Docente.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text()
+				if(parseInt(resp) ==1){
+					this.docentes[this.queIndex] = this.docente;
+					this.docente = [];
+					this.actualizacion=false;
+					alert('Docente actualizado exitosamente')
+				}
+			},
+			async eliminarDocente(id, index){
+				if( confirm(`¿Desea eliminar el docente de la entidad ${this.docentes[index].entidad}?`) ){
+					let data = new FormData();
+					data.append('pedir', 'delete')
+					data.append('id', id)
+					data.append('docente', JSON.stringify(this.docente));
+					let respServ = await fetch('./api/Docente.php',{
+						method: 'POST', body:data
+					});
+					let resp = await respServ.text()
+					if(resp == 'ok'){
+						this.docentes.splice(index,1);
+					}
+				}
+
+			},
+			fechaLatam(fechita){
+				return moment(fechita).format('DD/MM/YYYY')
+			}
+		}
+  }).mount('#app')
+</script>
 </body>
 </html>

@@ -12,7 +12,7 @@ function listar($db){
 	$filas = [];
 	$filtro = '';
 	if( isset($_POST['id']) ){ $filtro = 'and id = '.$_POST['id'];}
-	$sql = $db->query("SELECT * from convenios where activo =1 {$filtro};");
+	$sql = $db->query("SELECT * from convenios where activo =1 {$filtro} order by entidad asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;

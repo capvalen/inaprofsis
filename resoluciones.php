@@ -39,8 +39,8 @@
 								<td>2000-2030</td>
 								<td>965200087</td>
 								<td>
-									<button type="button" class="btn btn-outline-primary btn-sm border-0"><i class="bi bi-pencil-square"></i></button>
-									<button type="button" class="btn btn-outline-danger btn-sm border-0"><i class="bi bi-x-circle-fill"></i></button>
+									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarResolucion(index)"><i class="bi bi-pencil-square"></i></button>
+									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarResolucion(resolucion.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
 							</tr>
 						</tbody>
@@ -53,34 +53,51 @@
 					<div class="card-body">
 
 					<p class="fw-bold">Ingreso nuevo registro</p>
-					<label for="">Entidad</label>
+					<label for="">Año</label>
+					<input type="number" class="form-control" min="1900" max="2099" step="1" value="<?= date('Y')?>" />
+					<label for="">Resolución</label>
 					<input type="text" class="form-control">
-					<label for="">Representante</label>
-					<input type="text" class="form-control">
-					<label for="">Fecha de suscripción</label>
+					<label for="">Fecha de resolución</label>
 					<input type="date" class="form-control">
-					<label for="">Periodo de convenio</label>
+					<label for="">Tomo</label>
 					<input type="text" class="form-control">
-					<label for="">Acuerdos del convenio</label>
-					<textarea class="form-control" rows="3"></textarea>
-					<label for="">Autoridades por año</label>
-					<textarea class="form-control" rows="3"></textarea>
-					<label for="">Teléfono</label>
-					<input type="text" class="form-control">
-					<label for="">Celular</label>
-					<input type="text" class="form-control">
-					<label for="">Web</label>
-					<input type="text" class="form-control">
-					<label for="">Categoría</label>
+					<label for="">Tipo de evento</label>
 					<select class="form-select" id="">
 						<option value="1">Derecho gubernamental</option>
 						<option value="2">Estudio de abogados</option>
 						<option value="3">Entidades privadas</option>
 					</select>
+					<label for="">Especialidad</label>
+					<select class="form-select" id="">
+						<option value="1">Derecho gubernamental</option>
+						<option value="2">Estudio de abogados</option>
+						<option value="3">Entidades privadas</option>
+					</select>
+					<label for="">Código del curso</label>
+					<input type="text" class="form-control">
+					<label for="">Nombre del curso</label>
+					<input type="text" class="form-control">
+					<label for="">Fecha de desarrollo</label>
+					<input type="text" class="form-control">
+					<label for="">Docentes</label>
+					<select class="form-select" id="">
+						<option value="1">Derecho gubernamental</option>
+						<option value="2">Estudio de abogados</option>
+						<option value="3">Entidades privadas</option>
+					</select>
+					<label for="">Horas académicas</label>
+					<input type="number" min=1 class="form-control">
+					<label for="">Convenio</label>
+					<input type="text" class="form-control">
+					<label for="">Link a la DB</label>
+					<input type="text" class="form-control">
 					<label for="">Observaciones</label>
 					<textarea class="form-control" rows="3"></textarea>
-					<div class="d-grid mt-2">
-						<button class="btn btn-outline-primary">Agregar convenio</button>
+					<div class="d-grid mt-2" v-if="!actualizacion">
+						<button class="btn btn-outline-primary" @click="agregarResolucion()"><i class="bi bi-cloud-plus"></i> Agregar resolucion</button>
+					</div>
+					<div class="d-grid mt-2" v-else>
+						<button class="btn btn-outline-success" @click="actualizarResolucion()"><i class="bi bi-pencil-square"></i> Actualizar resolucion</button>
 					</div>
 					
 					</div>
@@ -92,6 +109,6 @@
 	</div>
 
 <?php pie(); ?>
-
+<script src="js/moment.min.js"></script>
 </body>
 </html>

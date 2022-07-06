@@ -32,12 +32,12 @@
 						<tbody>
 							<tr v-for="(docente, index) in docentes" :key="docente.id">
 								<td>{{index+1}}</td>
-								<td>{{docente.apellidos}} {{docente.nombres}}</td>
+								<td class="text-capitalize">{{docente.apellidos}} {{docente.nombres}}</td>
 								<td>{{fechaLatam(docente.fechaNacimiento)}}</td>
 								<td>{{docente.correo1}}</td>
 								<td>{{docente.celular1}}</td>
 								<td>
-								<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarDocente(index)"><i class="bi bi-pencil-square"></i></button>
+									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarDocente(index)"><i class="bi bi-pencil-square"></i></button>
 									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarDocente(docente.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
 							</tr>
@@ -108,7 +108,7 @@
   createApp({
     data() {
       return {
-				docentes:[], especialidades:[], docentes:[], actualizacion:false,
+				docentes:[], especialidades:[], actualizacion:false,
 				docente :{
 					idEspecialidad:1,
 					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
@@ -120,6 +120,12 @@
 			this.cargarDatos();
 		},
 		methods:{
+			limpiarPrincipal(){
+				this.docente = {
+					idEspecialidad:1,
+					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
+				}
+			},
 			async pedirDocentes(){
 				let data = new FormData();
 				data.append('pedir', 'listar')
@@ -147,6 +153,7 @@
 				let resp = await respServ.text()
 				if(parseInt(resp) >=1){
 					this.docentes.push( {'id': 'resp', ...this.docente});
+					this.limpiarPrincipal();
 					alert('Docente guardado exitosamente')
 				}
 			},
@@ -165,13 +172,13 @@
 				let resp = await respServ.text()
 				if(parseInt(resp) ==1){
 					this.docentes[this.queIndex] = this.docente;
-					this.docente = [];
+					this.limpiarPrincipal();
 					this.actualizacion=false;
 					alert('Docente actualizado exitosamente')
 				}
 			},
 			async eliminarDocente(id, index){
-				if( confirm(`¿Desea eliminar el docente de la entidad ${this.docentes[index].entidad}?`) ){
+				if( confirm(`¿Desea eliminar el docente de la entidad ${this.docentes[index].nombres} ${this.docentes[index].apellidos}?`) ){
 					let data = new FormData();
 					data.append('pedir', 'delete')
 					data.append('id', id)

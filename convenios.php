@@ -111,6 +111,12 @@
 			this.cargarDatos();
 		},
 		methods:{
+			limpiarPrincipal(){
+				this.convenio = {
+					entidad:'',representante:'',fecha:null,periodo:'',acuerdos:'',
+					autoridades:'',telefono:'',celular:'',web:'',idCategoria: 1,observaciones:''
+				};
+			},
 			async pedirConvenios(){
 				let data = new FormData();
 				data.append('pedir', 'listar')
@@ -138,6 +144,7 @@
 				let resp = await respServ.text()
 				if(parseInt(resp) >=1){
 					this.convenios.push( {'id': 'resp', ...this.convenio});
+					this.limpiarPrincipal();
 					alert('Convenio guardado exitosamente')
 				}
 			},
@@ -164,7 +171,7 @@
 				let resp = await respServ.text()
 				if(parseInt(resp) ==1){
 					this.convenios[this.queIndex] = this.convenio;
-					this.convenio = [];
+					this.limpiarPrincipal();
 					this.actualizacion=false;
 					alert('Convenio actualizado exitosamente')
 				}

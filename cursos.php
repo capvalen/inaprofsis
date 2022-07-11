@@ -23,25 +23,25 @@
 					<table class="table table-hover">
 						<thead>
 							<th>N°</th>
-							<th>Entidad</th>
-							<th>Representante</th>
+							<th>Nombre</th>
+							<th>Programa</th>
+							<th>Evento</th>
+							<th>Año</th>
 							<th>Fecha</th>
-							<th>Periodo</th>
-							<th>Celular</th>
 							<th>@</th>
 					
 						</thead>
 						<tbody>
-							<tr>
-								<td>1</td>
-								<td>San Pedro Gallo de Juliaca</td>
+							<tr v-for="(curso, index) in cursos">
+								<td>{{index+1}}</td>
+								<td>{{curso.nombre}}</td>
 								<td>Luis Garcia Meza</td>
 								<td>14/05/2022</td>
 								<td>2000-2030</td>
 								<td>965200087</td>
 								<td>
-									<button type="button" class="btn btn-outline-primary btn-sm border-0"><i class="bi bi-pencil-square"></i></button>
-									<button type="button" class="btn btn-outline-danger btn-sm border-0"><i class="bi bi-x-circle-fill"></i></button>
+									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
+									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
 							</tr>
 						</tbody>
@@ -65,16 +65,15 @@
 						<option v-for="evento in eventos" :value="evento.id">{{evento.descripcion}}</option>
 					</select>
 					<label for="">Nombre de curso</label>
-					<input type="text" class="form-control">
-					
+					<input type="text" class="form-control" v-model="curso.nombre">
 					<label for="">Modalidad</label>
 					<select class="form-select" id="" v-model="curso.idModalidad">
 						<option v-for="modalidad in modalidades" :value="modalidad.id">{{modalidad.descripcion}}</option>
 					</select>
 					<label for="">Fecha de inicio</label>
-					<input type="date" class="form-control">
+					<input type="date" class="form-control" v-model="curso.inicio">
 					<label for="">Fechas de desarrollo (link)</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="curso.fechasLink">
 					<label for="">Horas académidas</label>
 					<select class="form-select" id="" v-model="curso.idHora">
 						<option v-for="hora in horas" :value="hora.id">{{hora.descripcion}}</option>
@@ -84,36 +83,36 @@
 						<option v-for="convenio in convenios" :value="convenio.id">{{convenio.entidad}}</option>
 					</select>
 					<label for="">Código de curso</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="curso.codigo">
 					<label class="fw-bold">Precios</label>
 					<div class="row row-cols-2">
 						<div class="col">
 							<label for="">General</label>
-							<input type="number" class="form-control">
+							<input type="number" class="form-control" v-model="curso.pGeneral">
 						</div>
 						<div class="col">
 							<label for="">Ex alumnos</label>
-							<input type="number" class="form-control">
+							<input type="number" class="form-control" v-model="curso.pExalumnos">
 						</div>
 						<div class="col">
 							<label for="">Corporativo</label>
-							<input type="number" class="form-control">
+							<input type="number" class="form-control" v-model="curso.pCorporativo">
 						</div>
 						<div class="col">
 							<label for="">Pronto pago</label>
-							<input type="number" class="form-control">
+							<input type="number" class="form-control" v-model="curso.pPronto">
 						</div>
 						<div class="col">
 							<label for="">Remate</label>
-							<input type="number" class="form-control">
+							<input type="number" class="form-control" v-model="curso.pRemate">
 						</div>
 						<div class="col">
 							<label for="">Media beca</label>
-							<input type="number" class="form-control">
+							<input type="number" class="form-control" v-model="curso.pMediaBeca">
 						</div>
 						<div class="col">
 							<label for="">Especial</label>
-							<input type="number" class="form-control">
+							<input type="number" class="form-control" v-model="curso.pEspecial">
 						</div>
 					</div>
 					<label for="">Docente original</label>
@@ -124,24 +123,77 @@
 					<select class="form-select" id="" v-model="curso.idDocenteReemplazo">
 						<option v-for="docente in docentes" :value="docente.id">{{docente.apellidos}} {{docente.nombres}}</option>
 					</select>
-					<label for="">Temario</label>
-					<input type="text" class="form-control">
+					<label for="">Temario (archivo)</label>
+					<input type="file" class="form-control" v-model="curso.temarioArchivo">
+					<label for="">Temario (Link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<input type="text" class="form-control" v-model="curso.temarioLink">
 					<label for="">Tipo de certificado</label>
 					<select class="form-select" id="" v-model="curso.idTipoCertificado">
 						<option v-for="tCertificado in tipoCertificados" :value="tCertificado.id">{{tCertificado.descripcion}}</option>
 					</select>
 					<label for="">Brochure (link)</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="curso.brochureLink">
 					<label for="">Etapa del curso</label>
 					<select class="form-select" id="" v-model="curso.idEtapa">
 						<option v-for="etapa in etapas" :value="etapa.id">{{etapa.descripcion}}</option>
 					</select>
 					<label for="">Detalles</label>
-					<textarea class="form-control" rows="3"></textarea>
+					<textarea class="form-control" rows="3" v-model="curso.detalles"></textarea>
 					<label for="">Data de alumnos (link)</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="curso.dataLink">
 					<label for="">Vacantes disponibles</label>
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" v-model="curso.vacantes">
+					<label for="">Autorización (archivo)</label>
+					<input type="text" class="form-control" v-model="curso.vacantes">
+					<label for="">Cambios realizados</label>
+					<textarea class="form-control" rows="3" v-model="curso.detalles"></textarea>
+					<label for="">Lista de alumnos enviado:</label>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="" id="checkAlumnos" v-model="curso.checkAlumnos" :checked="curso.checkAlumnos" :value="curso.checkAlumnos">
+						<label class="form-check-label" for="checkAlumnos">
+							<span v-if="!curso.checkAlumnos">Sin enviar</span>
+							<span v-else>Enviado</span>
+						</label>
+					</div>
+					<label for="">Lista de Afianzamiento:</label>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="" id="checkAfianzamiento" v-model="curso.checkAfianzamiento" :checked="curso.checkAfianzamiento" :value="curso.checkAfianzamiento">
+						<label class="form-check-label" for="checkAfianzamiento">
+							<span v-if="!curso.checkAfianzamiento">Sin enviar</span>
+							<span v-else>Enviado</span>
+						</label>
+					</div>
+					<label for="">Lista de Aprobados:</label>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="" id="checkAprobados" v-model="curso.checkAprobados" :checked="curso.checkAprobados" :value="curso.checkAprobados">
+						<label class="form-check-label" for="checkAprobados">
+							<span v-if="!curso.checkAprobados">Sin enviar</span>
+							<span v-else>Enviado</span>
+						</label>
+					</div>
+					<label for="">Colaborador responsable N° 1:</label>
+					<select class="form-select" id="" v-model="curso.idResponsable1">
+						<option v-for="colaborador in colaboradores" :value="colaborador.id">{{colaborador.nombres}}</option>
+					</select>
+					<label for="">Colaborador responsable N° 2:</label>
+					<select class="form-select" id="" v-model="curso.idResponsable2">
+						<option v-for="colaborador in colaboradores" :value="colaborador.id">{{colaborador.nombres}}</option>
+					</select>
+					<label for="">Prospecto (link)</label>
+					<input type="text" class="form-control" v-model="curso.prospectoLink">
+					<label for="">Grupo de difusión</label>
+					<input type="text" class="form-control" v-model="curso.grupo">
+					<label for="">Catálogo (link)</label>
+					<input type="text" class="form-control" v-model="curso.catalogoLink">
+					<label for="">Video (link)</label>
+					<input type="text" class="form-control" v-model="curso.videoLink">
+					
+
+					
+
+
+
+
 
 					<div class="d-grid mt-2" v-if="!actualizacion">
 						<button class="btn btn-outline-primary" @click="agregarCurso()"><i class="bi bi-cloud-plus"></i> Agregar curso</button>
@@ -166,20 +218,20 @@
   createApp({
     data() {
       return {
-				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], actualizacion:false,
+				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false,
 				curso:{
-					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temario:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0
+					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
 				}
       }
     },
 		mounted(){
-			//this.pedirCursos();
+			this.pedirCursos();
 			this.cargarDatos();
 		},
 		methods:{
 			limpiarPrincipal(){
 				this.curso = {
-					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temario:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0
+					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
 				};
 			},
 			async pedirCursos(){
@@ -190,6 +242,7 @@
 				});
 				let resp = await respServ.json();
 				this.cursos = resp;
+				console.log(this.cursos);
 			},
 			async cargarDatos(){
 				let data = new FormData();
@@ -226,6 +279,10 @@
 					method: 'POST', body:data
 				});
 				this.horas = await respServHoras.json();
+				let respServColaboradores = await fetch('./api/Colaborador.php',{
+					method: 'POST', body:data
+				});
+				this.colaboradores = await respServColaboradores.json();
 			},
 			async agregarCurso(){
 				let data = new FormData();
@@ -245,9 +302,29 @@
 			editarCurso(mIndex){
 				this.queIndex = mIndex;
 				this.curso = JSON.parse(JSON.stringify(this.cursos[mIndex]));
+				/* if(this.curso.checkAlumnos=='1'){
+					document.getElementById('checkAlumnos').checked  = true;
+				}else{
+					document.getElementById('checkAlumnos').checked  = false;
+				}
+				if(this.curso.checkAfianzamiento==1){
+					document.getElementById('checkAfianzamiento').checked  = true;
+				}else{
+					document.getElementById('checkAfianzamiento').checked  = false;
+				}
+				if(this.curso.checkAprobados==1){
+					document.getElementById('checkAprobados').checked  = true;
+				}else{
+					document.getElementById('checkAprobados').checked  = false;
+				} */
 				this.actualizacion=true;
 			},
 			async actualizarCurso(){
+
+				if(document.getElementById('checkAlumnos').checked){ this.curso.checkAlumnos = 1; }else{ this.curso.checkAlumnos =0;}
+				if(document.getElementById('checkAfianzamiento').checked){ this.curso.checkAfianzamiento = 1; }else{ this.curso.checkAfianzamiento =0;}
+				if(document.getElementById('checkAprobados').checked){ this.curso.checkAprobados = 1; }else{ this.curso.checkAprobados =0;}
+
 				let data = new FormData();
 				data.append('pedir', 'update')
 				data.append('curso', JSON.stringify(this.curso));
@@ -263,7 +340,7 @@
 				}
 			},
 			async eliminarCurso(id, index){
-				if( confirm(`¿Desea eliminar el curso de la entidad ${this.cursos[index].nombres} ${this.cursos[index].apellidos}?`) ){
+				if( confirm(`¿Desea eliminar el curso llamado ${this.cursos[index].nombre}?`) ){
 					let data = new FormData();
 					data.append('pedir', 'delete')
 					data.append('id', id)

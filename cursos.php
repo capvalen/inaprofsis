@@ -15,8 +15,8 @@
 					<h1>Cursos</h1>
 					<p>Listado de convenios por año:</p>
 					<div class="input-group mb-3">
-						<input type="text" class="form-control" placeholder="Filtro" autocomplete="off">
-						<button class="btn btn-outline-secondary" type="button" id="txtBuscar"><i class="bi bi-search"></i></button>
+						<input type="text" class="form-control" placeholder="Filtro" autocomplete="off" v-model="texto" @keyup.enter="buscar()">
+						<button class="btn btn-outline-secondary" type="button" id="txtBuscar" @click="buscar()"><i class="bi bi-search"></i></button>
 					</div>
 				</div>
 				<div class="table-responsive-md">
@@ -34,11 +34,11 @@
 						<tbody>
 							<tr v-for="(curso, index) in cursos">
 								<td>{{index+1}}</td>
-								<td>{{curso.nombre}}</td>
-								<td>Luis Garcia Meza</td>
-								<td>14/05/2022</td>
-								<td>2000-2030</td>
-								<td>965200087</td>
+								<td><a class="text-decoration-none" :href="'cursoDetalle.php?id='+curso.id">{{curso.nombre}}</a></td>
+								<td>{{curso.desPrograma}}</td>
+								<td>{{curso.desEvento}}</td>
+								<td>{{curso.anio}}</td>
+								<td>{{fechaLatam(curso.inicio)}}</td>
 								<td>
 									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
 									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
@@ -72,7 +72,7 @@
 					</select>
 					<label for="">Fecha de inicio</label>
 					<input type="date" class="form-control" v-model="curso.inicio">
-					<label for="">Fechas de desarrollo (link)</label>
+					<label for="">Fechas de desarrollo (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.fechasLink">
 					<label for="">Horas académidas</label>
 					<select class="form-select" id="" v-model="curso.idHora">
@@ -131,7 +131,7 @@
 					<select class="form-select" id="" v-model="curso.idTipoCertificado">
 						<option v-for="tCertificado in tipoCertificados" :value="tCertificado.id">{{tCertificado.descripcion}}</option>
 					</select>
-					<label for="">Brochure (link)</label>
+					<label for="">Brochure (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.brochureLink">
 					<label for="">Etapa del curso</label>
 					<select class="form-select" id="" v-model="curso.idEtapa">
@@ -139,12 +139,12 @@
 					</select>
 					<label for="">Detalles</label>
 					<textarea class="form-control" rows="3" v-model="curso.detalles"></textarea>
-					<label for="">Data de alumnos (link)</label>
+					<label for="">Data de alumnos (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.dataLink">
 					<label for="">Vacantes disponibles</label>
 					<input type="text" class="form-control" v-model="curso.vacantes">
 					<label for="">Autorización (archivo)</label>
-					<input type="text" class="form-control" v-model="curso.vacantes">
+					<input type="file" class="form-control" v-model="curso.vacantes">
 					<label for="">Cambios realizados</label>
 					<textarea class="form-control" rows="3" v-model="curso.detalles"></textarea>
 					<label for="">Lista de alumnos enviado:</label>
@@ -179,13 +179,13 @@
 					<select class="form-select" id="" v-model="curso.idResponsable2">
 						<option v-for="colaborador in colaboradores" :value="colaborador.id">{{colaborador.nombres}}</option>
 					</select>
-					<label for="">Prospecto (link)</label>
+					<label for="">Prospecto (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.prospectoLink">
 					<label for="">Grupo de difusión</label>
 					<input type="text" class="form-control" v-model="curso.grupo">
-					<label for="">Catálogo (link)</label>
+					<label for="">Catálogo (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.catalogoLink">
-					<label for="">Video (link)</label>
+					<label for="">Video (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.videoLink">
 					
 
@@ -218,7 +218,7 @@
   createApp({
     data() {
       return {
-				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false,
+				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false, texto:'',
 				curso:{
 					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
 				}
@@ -356,8 +356,30 @@
 
 			},
 			fechaLatam(fechita){
-				return moment(fechita).format('DD/MM/YYYY')
-			}
+				if(fechita == null){
+					return '';
+				}else{
+					return moment(fechita, 'YYYY-MM-DD').format('DD/MM/YYYY')
+				}
+			},
+			async buscar(){
+				if(this.texto.length>=3){
+					let data = new FormData();
+					data.append('pedir', 'buscar')
+					data.append('texto', this.texto)
+					let respServ = await fetch('./api/Curso.php',{
+						method: 'POST', body:data
+					});
+					let resp = await respServ.json();
+					this.cursos = resp;
+				}else{
+					if(this.texto.length==0){
+						this.pedirCursos();
+					}else{
+						this.cursos=[];
+					}
+				}
+			},
 		}
   }).mount('#app')
 </script>

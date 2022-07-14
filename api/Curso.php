@@ -3,6 +3,7 @@ include 'conectkarl.php';
 
 switch( $_POST['pedir']){
 	case 'listar': listar($db); break;
+	case 'buscar': buscar($db); break;
 	case 'add': agregar($db); break;
 	case 'update': actualizar($db); break;
 	case 'delete': borrar($db); break;
@@ -12,6 +13,21 @@ function listar($db){
 	$filas = [];
 	$filtro = '';
 	if( isset($_POST['id']) ){ $filtro = 'and id = '.$_POST['id'];}
+	$sql = $db->query("SELECT c.*, p.descripcion as desPrograma, e.descripcion as desEvento
+	from cursos c inner join programas p on p.id = c.idPrograma
+	inner join eventos e on e.id = c.idEvento
+	where c.activo =1 {$filtro} order by nombre asc;");
+	if($sql->execute()){
+		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$filas[]= $row;
+		}
+		echo json_encode($filas);
+	}
+}
+function buscar($db){
+	$filas = [];
+	$filtro = '';
+	if( isset($_POST['texto']) ){ $filtro = "and nombre like '%{$_POST["texto"]}%' or id = '{$_POST["texto"]}' ";}
 	$sql = $db->query("SELECT c.* from cursos c where c.activo =1 {$filtro} order by nombre asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){

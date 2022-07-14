@@ -5,7 +5,8 @@
 <body>
 
 	<?php menu(); ?>
-	<div class="container-fluid" id="app">
+	<div class="container" id="app">
+		<h1>Bienvenido a Sistema Inaprof</h1>
 	</div>
 
 <?php pie(); ?>

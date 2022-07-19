@@ -3,7 +3,6 @@ include 'conectkarl.php';
 
 switch( $_POST['pedir']){
 	case 'listar': listar($db); break;
-	case 'buscar': buscar($db); break;
 	case 'add': agregar($db); break;
 	case 'update': actualizar($db); break;
 	case 'delete': borrar($db); break;
@@ -12,23 +11,27 @@ switch( $_POST['pedir']){
 function listar($db){
 	$filas = [];
 	$filtro = '';
-	if( isset($_POST['id']) ){ $filtro = 'and id = '.$_POST['id'];}
-	$sql = $db->query("SELECT c.*, p.descripcion as desPrograma, e.descripcion as desEvento
+	if( isset($_POST['id']) ){ $filtro = ' and c.id = '.$_POST['id'];}
+	if( isset($_POST['texto']) ){ $filtro .= ' and c.nombre like "%'.$_POST['texto'].'%" ';}
+	if( isset($_POST['idPrograma']) ){ $filtro .= ' and c.idPrograma = '.$_POST['idPrograma'];}
+	if( isset($_POST['idEvento']) ){ $filtro .= ' and c.idEvento = '.$_POST['idEvento'];}
+	if( isset($_POST['anio']) ){ $filtro .= ' and anio = '.$_POST['anio'];}
+
+	$sql = $db->query("SELECT c.*, p.descripcion as desPrograma, e.descripcion as desEvento, m.descripcion as desModalidad, h.descripcion as desHoras, co.entidad as desConvenio, concat( d.apellidos, ' ', d.nombres) as nomDocente, concat( d1.apellidos, ' ', d1.nombres) as nomDocenteReemplazo, tc.descripcion as nomCertificado, et.descripcion as etapaNombre, resp1.nombres as nomResponsable1, resp2.nombres as nomResponsable2
+
 	from cursos c inner join programas p on p.id = c.idPrograma
 	inner join eventos e on e.id = c.idEvento
-	where c.activo =1 {$filtro} order by nombre asc;");
-	if($sql->execute()){
-		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
-			$filas[]= $row;
-		}
-		echo json_encode($filas);
-	}
-}
-function buscar($db){
-	$filas = [];
-	$filtro = '';
-	if( isset($_POST['texto']) ){ $filtro = "and nombre like '%{$_POST["texto"]}%' or id = '{$_POST["texto"]}' ";}
-	$sql = $db->query("SELECT c.* from cursos c where c.activo =1 {$filtro} order by nombre asc;");
+	inner join modalidades m on m.id = c.idModalidad
+	inner join horas h on h.id = c.idHora
+	inner join convenios co on co.id = c.idConvenio
+	inner join docentes d on d.id = c.idDocente
+	inner join docentes d1 on d1.id = c.idDocenteReemplazo
+	inner join tipo_certificados tc on tc.id = c.idTipoCertificado
+	inner join etapas et on et.id = c.idEtapa
+	inner join colaboradores resp1 on resp1.id = c.idResponsable1
+	inner join colaboradores resp2 on resp2.id = c.idResponsable2
+	where c.activo =1 {$filtro} order by c.nombre asc;");
+	
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;

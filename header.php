@@ -44,7 +44,7 @@ function menu(){ ?>
 					<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<li><a class="dropdown-item" href="convenios.php">Convenios</a></li>
 						<li><a class="dropdown-item" href="docentes.php">Docentes</a></li>
-						<li><a class="dropdown-item" href="resoluciones.php">Resoluciones</a></li>
+						<li><a class="dropdown-item" href="resoluciones.php">Resoluciones <span class="text-decoration-line-through">(pendiente)</span></a></li>
 						<li><a class="dropdown-item" href="cursos.php">Cursos</a></li>
 						<li><a class="dropdown-item" href="#">Alumnos</a></li>
 						<li><a class="dropdown-item" href="#">Colaboradores</a></li>

@@ -13,13 +13,29 @@
 			<div class="col-12 col-md-7 col-lg-9">
 				<div class="row col px-5">
 					<h1>Convenios</h1>	
-					<p>Listado de convenios por año:</p>
-					<div class="input-group mb-3">
-						<input type="text" class="form-control" placeholder="Filtro" autocomplete="off">
-						<button class="btn btn-outline-secondary" type="button" id="txtBuscar"><i class="bi bi-search"></i></button>
+					
+					<div class="row ">
+						<div class="col-12 col-md-6">
+							<label for=""><i class="bi bi-funnel"></i> Filtros</label>
+							<div class="input-group mb-3">
+								<input type="text" class="form-control" placeholder="Entidad" autocomplete="off" v-model="texto">
+							</div>
+						</div>
+						<div class="col-10 col-md">
+						<label for=""> Año</label>
+							<div class="input-group mb-3">
+								<input type="text" class="form-control" placeholder="Año" autocomplete="off" v-model="anioSearch">
+							</div>
+						</div>
+						<div class="col-2 col-md d-flex align-content-end align-content-md-center flex-wrap">
+							<button class="btn btn-outline-secondary" type="button" @click="buscarConvenios()" id="txtBuscar"><i class="bi bi-search"></i></button>
+						</div>
 					</div>
+
 				</div>
+
 				<div class="table-responsive-md">
+					<p>Listado de convenios por año:</p>
 					<table class="table table-hover">
 						<thead>
 							<th>N°</th>
@@ -99,7 +115,7 @@
   createApp({
     data() {
       return {
-        categorias:[], convenios:[], actualizacion:false,
+        categorias:[], convenios:[], actualizacion:false, anioSearch:'', texto:'',
 				convenio :{
 					entidad:'',representante:'',fecha:null,periodo:'',acuerdos:'',
 					autoridades:'',telefono:'',celular:'',web:'',idCategoria: 1,observaciones:''
@@ -190,7 +206,21 @@
 						this.convenios.splice(index,1);
 					}
 				}
-
+			},
+			async buscarConvenios(){
+				if(this.texto=='' && this.anioSearch=='' ){
+					this.pedirConvenios();
+				}else{
+					let datos = new FormData();
+					datos.append('pedir', 'listar')
+					datos.append('texto', this.texto)
+					if(this.anioSearch!=''){ datos.append('anios', this.anioSearch) }
+					this.convenios = [];
+					let respServ = await fetch('./api/Convenio.php',{
+						method: 'POST', body:datos
+					});
+					this.convenios = await respServ.json();
+				}
 			}
 		}
   }).mount('#app')

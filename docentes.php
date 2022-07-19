@@ -13,26 +13,44 @@
 			<div class="col-12 col-md-7 col-lg-9">
 				<div class="row col px-5">
 					<h1>Docentes</h1>
-					<p>Listado de docentes:</p>
-					<div class="input-group mb-3">
-						<input type="text" class="form-control" placeholder="Filtro" autocomplete="off">
-						<button class="btn btn-outline-secondary" type="button" id="txtBuscar"><i class="bi bi-search"></i></button>
+					
+					<div class="row ">
+						<div class="col-12 col-md-6">
+							<label for=""><i class="bi bi-funnel"></i> Filtros</label>
+							<div class="input-group mb-3">
+								<input type="text" class="form-control" placeholder="Nombre, apellidos, código" autocomplete="off" v-model="texto">
+								
+							</div>
+						</div>
+						<div class="col-10 col-md">
+							<label for="">Especialidad</label>
+							<select class="form-select" v-model="especialidadSearch">
+								<option value="-1">Todos</option>
+								<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
+							</select>
+						</div>
+						<div class="col-2 col-md d-flex align-content-end align-content-md-center flex-wrap">
+							<button class="btn btn-outline-secondary" type="button" @click="buscarDocente()" id="txtBuscar"><i class="bi bi-search"></i></button>
+						</div>
 					</div>
 				</div>
 				<div class="table-responsive-md">
+					<p>Listado de docentes:</p>
 					<table class="table table-hover">
 						<thead>
 							<th>N°</th>
 							<th>Apellidos y nombres</th>
 							<th>Especialidad</th>
+							<th>F. Nacimiento</th>
 							<th>Correo</th>
 							<th>Celular</th>
 							<th>@</th>
 						</thead>
 						<tbody>
-							<tr v-for="(docente, index) in docentes" :key="docente.id">
+							<tr v-if="docentes.length>0" v-for="(docente, index) in docentes" :key="docente.id">
 								<td>{{index+1}}</td>
 								<td class="text-capitalize">{{docente.apellidos}} {{docente.nombres}}</td>
+								<td>{{docente.nomEspecialidad}}</td>
 								<td>{{fechaLatam(docente.fechaNacimiento)}}</td>
 								<td>{{docente.correo1}}</td>
 								<td>{{docente.celular1}}</td>
@@ -40,6 +58,9 @@
 									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarDocente(index)"><i class="bi bi-pencil-square"></i></button>
 									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarDocente(docente.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
+							</tr>
+							<tr v-else>
+								<td colspan="6">No se hallaron resultados</td>
 							</tr>
 						</tbody>
 					</table>
@@ -108,7 +129,7 @@
   createApp({
     data() {
       return {
-				docentes:[], especialidades:[], actualizacion:false,
+				docentes:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
 				docente :{
 					idEspecialidad:1,
 					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
@@ -191,10 +212,25 @@
 						this.docentes.splice(index,1);
 					}
 				}
-
+			},
+			async buscarDocente(){
+				let datos = new FormData();
+				datos.append('pedir', 'listar')
+				datos.append('texto', this.texto)
+				if(this.especialidadSearch>0){ datos.append('idEspecialidad', this.especialidadSearch); }				
+				this.docentes = [];
+				let respServ = await fetch('./api/Docente.php',{
+					method: 'POST', body:datos
+				});
+				this.docentes = await respServ.json();
+				
 			},
 			fechaLatam(fechita){
-				return moment(fechita).format('DD/MM/YYYY')
+				if(fechita == '' || fechita == null){
+					return '';
+				}else{
+					return moment(fechita).format('DD/MM/YYYY')
+				}
 			}
 		}
   }).mount('#app')

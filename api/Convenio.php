@@ -11,7 +11,10 @@ switch( $_POST['pedir']){
 function listar($db){
 	$filas = [];
 	$filtro = '';
-	if( isset($_POST['id']) ){ $filtro = 'and id = '.$_POST['id'];}
+	if( isset($_POST['id']) ){ $filtro = ' and id = '.$_POST['id'];}
+	if( isset($_POST['texto']) ){ $filtro .= ' and (entidad like "%'.$_POST['texto'].'%" or representante like "%'.$_POST['texto'].'%") ';}
+	if( isset($_POST['anios']) ){ $filtro .= ' and DATE_FORMAT(fecha, "%Y") = '.$_POST['anios'].' ';}
+	//echo $filtro;
 	$sql = $db->query("SELECT * from convenios where activo =1 {$filtro} order by entidad asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){

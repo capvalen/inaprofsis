@@ -12,7 +12,10 @@ function listar($db){
 	$filas = [];
 	$filtro = '';
 	if( isset($_POST['id']) ){ $filtro = 'and id = '.$_POST['id'];}
-	$sql = $db->query("SELECT d.*, e.descripcion from docentes d inner join especialidad e on e.id = d.idEspecialidad where d.activo =1 {$filtro} order by apellidos asc;");
+	if( isset($_POST['idEspecialidad']) ){ $filtro .= ' and idEspecialidad = '.$_POST['idEspecialidad'];}
+	if( isset($_POST['texto']) ){ $filtro .= ' and (nombres like "%'.$_POST['texto'].'%" or apellidos like "%'.$_POST['texto'].'%" or dni = "'.$_POST['texto'].'" )';}
+	//echo $filtro;
+	$sql = $db->query("SELECT d.*, e.descripcion as nomEspecialidad from docentes d inner join especialidad e on e.id = d.idEspecialidad where d.activo =1 {$filtro} order by apellidos asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;

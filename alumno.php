@@ -30,12 +30,12 @@
 							</select>
 						</div>
 						<div class="col-2 col-md d-flex align-content-end align-content-md-center flex-wrap">
-							<button class="btn btn-outline-secondary" type="button" @click="buscarDocente()" id="txtBuscar"><i class="bi bi-search"></i></button>
+							<button class="btn btn-outline-secondary" type="button" @click="buscarAlumno()" id="txtBuscar"><i class="bi bi-search"></i></button>
 						</div>
 					</div>
 				</div>
 				<div class="table-responsive-md">
-					<p>Listado de docentes:</p>
+					<p>Listado de alumnos:</p>
 					<table class="table table-hover">
 						<thead>
 							<th>N°</th>
@@ -47,16 +47,16 @@
 							<th>@</th>
 						</thead>
 						<tbody>
-							<tr v-if="docentes.length>0" v-for="(docente, index) in docentes" :key="docente.id">
+							<tr v-if="alumnos.length>0" v-for="(alumno, index) in alumnos" :key="alumno.id">
 								<td>{{index+1}}</td>
-								<td class="text-capitalize">{{docente.apellidos}} {{docente.nombres}}</td>
-								<td>{{docente.nomEspecialidad}}</td>
-								<td>{{fechaLatam(docente.fechaNacimiento)}}</td>
-								<td>{{docente.correo1}}</td>
-								<td>{{docente.celular1}}</td>
+								<td class="text-capitalize"><a :href="'alumnoDetalle.php?id='+alumno.id">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
+								<td>{{alumno.nomEspecialidad}}</td>
+								<td>{{fechaLatam(alumno.fechaNacimiento)}}</td>
+								<td>{{alumno.correo1}}</td>
+								<td>{{alumno.celular1}}</td>
 								<td>
-									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarDocente(index)"><i class="bi bi-pencil-square"></i></button>
-									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarDocente(docente.id, index)"><i class="bi bi-x-circle-fill"></i></button>
+									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarAlumno(index)"><i class="bi bi-pencil-square"></i></button>
+									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarAlumno(alumno.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
 							</tr>
 							<tr v-else>
@@ -73,44 +73,52 @@
 					<p class="fw-bold">Ingreso nuevo registro</p>
 					
 					<label for="">Nombres</label>
-					<input type="text" class="form-control"  v-model="docente.nombres">
+					<input type="text" class="form-control"  v-model="alumno.nombres">
 					<label for="">Apellidos</label>
-					<input type="text" class="form-control"  v-model="docente.apellidos">
+					<input type="text" class="form-control"  v-model="alumno.apellidos">
 					<label for="">D.N.I.</label>
-					<input type="text" class="form-control"  v-model="docente.dni">
+					<input type="text" class="form-control"  v-model="alumno.dni">
 					<label for="">N° Registro Conciliador</label>
-					<input type="text" class="form-control"  v-model="docente.conciliador">
-					<label for="">Fecha de nacimiento</label>
-					<input type="date" class="form-control"  v-model="docente.fechaNacimiento">
+					<input type="text" class="form-control"  v-model="alumno.conciliador">
+					
 					<label for="">Celular 1</label>
-					<input type="text" class="form-control"  v-model="docente.celular1">
+					<input type="text" class="form-control"  v-model="alumno.celular1">
 					<label for="">Celular 2</label>
-					<input type="text" class="form-control"  v-model="docente.celular2">
+					<input type="text" class="form-control"  v-model="alumno.celular2">
+					<label for="">Whastapp</label>
+					<input type="text" class="form-control"  v-model="alumno.whatsapp">
 					<label for="">Correo 1</label>
-					<input type="text" class="form-control"  v-model="docente.correo1">
+					<input type="text" class="form-control"  v-model="alumno.correo1">
 					<label for="">Correo 2</label>
-					<input type="text" class="form-control"  v-model="docente.correo2">
-					<label for="">N° Registro Conciliador 1</label>
-					<input type="text" class="form-control"  v-model="docente.registroConciliador1">
-					<label for="">N° Registro Conciliador 2</label>
-					<input type="text" class="form-control"  v-model="docente.registroConciliador2">
-					<label for="">N° Registro Capacitador</label>
-					<input type="text" class="form-control"  v-model="docente.registroCapacitador">
+					<input type="text" class="form-control"  v-model="alumno.correo2">
+					<label for="">Fecha de nacimiento</label>
+					<input type="date" class="form-control"  v-model="alumno.fechaNacimiento">
 					<label for="">Dirección</label>
-					<input type="text" class="form-control"  v-model="docente.direccion">
+					<input type="text" class="form-control"  v-model="alumno.direccion">
 					<label for="">Lugar de trabajo</label>
-					<input type="text" class="form-control"  v-model="docente.lugarTrabajo">
+					<input type="text" class="form-control"  v-model="alumno.lugarTrabajo">
 					<label for="">N° Hijos</label>
-					<input type="text" class="form-control"  v-model="docente.hijos">
-					<label for="">Particuliaridades del docente</label>
-					<textarea class="form-control" rows="3"  v-model="docente.particularidades"></textarea>
-					<label for="">Hoja de vida</label>
-					<input type="file" class="form-control"  >
+					<input type="number" class="form-control"  v-model="alumno.hijos">
+					<label for="">Especialidad</label>
+					<select class="form-select" v-model="alumno.idEspecialidad">
+						<option value="-1">Todos</option>
+						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
+					</select>
+					<label for="">Morosidad</label>
+					<select class="form-select" v-model="alumno.idMorosidad">
+						<option value="1">Niguno</option>
+						<option value="2">Rojo</option>
+						<option value="3">Naranja</option>
+						<option value="4">Amarillo</option>
+						<option value="5">Verde</option>
+					</select>
+					<label for="">Detalles</label>
+					<textarea class="form-control" rows="3"  v-model="alumno.detalle"></textarea>
 					<div class="d-grid mt-2" v-if="!actualizacion">
-						<button class="btn btn-outline-primary" @click="agregarDocente()"><i class="bi bi-cloud-plus"></i> Agregar docente</button>
+						<button class="btn btn-outline-primary" @click="agregarAlumno()"><i class="bi bi-cloud-plus"></i> Agregar alumno</button>
 					</div>
 					<div class="d-grid mt-2" v-else>
-						<button class="btn btn-outline-success" @click="actualizarDocente()"><i class="bi bi-pencil-square"></i> Actualizar docente</button>
+						<button class="btn btn-outline-success" @click="actualizarAlumno()"><i class="bi bi-pencil-square"></i> Actualizar alumno</button>
 					</div>
 					</div>
 				</div>
@@ -123,37 +131,37 @@
 <?php pie(); ?>
 <script src="js/moment.min.js"></script>
 <script>
-  const { createApp } = Vue
+	const { createApp } = Vue
 
-  createApp({
-    data() {
-      return {
-				docentes:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
-				docente :{
+	createApp({
+		data() {
+			return {
+				alumnos:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
+				alumno :{
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', conciliador:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
+					nombres:'', apellidos:'', dni:'', conciliador:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', whatsapp:'', direccion:'', lugarTrabajo:'', hijos:0,  idMorosidad:1, detalle:''
 				}
-      }
-    },
+			}
+		},
 		mounted(){
-			this.pedirDocentes();
+			this.pedirAlumnos();
 			this.cargarDatos();
 		},
 		methods:{
 			limpiarPrincipal(){
-				this.docente = {
+				this.alumno = {
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
+					nombres:'', apellidos:'', dni:'', conciliador:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', whatsapp:'', direccion:'', lugarTrabajo:'', hijos:0,  idMorosidad:1, detalle:''
 				}
 			},
-			async pedirDocentes(){
+			async pedirAlumnos(){
 				let data = new FormData();
 				data.append('pedir', 'listar')
-				let respServ = await fetch('./api/Docente.php',{
+				let respServ = await fetch('./api/Alumno.php',{
 					method: 'POST', body:data
 				});
 				let resp = await respServ.json();
-				this.docentes = resp;
+				this.alumnos = resp;
 			},
 			async cargarDatos(){
 				let data = new FormData();
@@ -163,65 +171,65 @@
 				});
 				this.especialidades = await respServ.json()
 			},
-			async agregarDocente(){
+			async agregarAlumno(){
 				let data = new FormData();
 				data.append('pedir', 'add')
-				data.append('docente', JSON.stringify(this.docente));
-				let respServ = await fetch('./api/Docente.php',{
+				data.append('alumno', JSON.stringify(this.alumno));
+				let respServ = await fetch('./api/Alumno.php',{
 					method: 'POST', body:data
 				});
 				let resp = await respServ.text()
 				if(parseInt(resp) >=1){
-					this.docentes.push( {'id': 'resp', ...this.docente});
+					this.alumnos.push( {'id': 'resp', ...this.alumno});
 					this.limpiarPrincipal();
-					alert('Docente guardado exitosamente')
+					alert('alumno guardado exitosamente')
 				}
 			},
-			editarDocente(mIndex){
+			editarAlumno(mIndex){
 				this.queIndex = mIndex;
-				this.docente = JSON.parse(JSON.stringify(this.docentes[mIndex]));
+				this.alumno = JSON.parse(JSON.stringify(this.alumnos[mIndex]));
 				this.actualizacion=true;
 			},
-			async actualizarDocente(){
+			async actualizarAlumno(){
 				let data = new FormData();
 				data.append('pedir', 'update')
-				data.append('docente', JSON.stringify(this.docente));
-				let respServ = await fetch('./api/Docente.php',{
+				data.append('alumno', JSON.stringify(this.alumno));
+				let respServ = await fetch('./api/Alumno.php',{
 					method: 'POST', body:data
 				});
 				let resp = await respServ.text()
 				if(parseInt(resp) ==1){
-					this.docentes[this.queIndex] = this.docente;
+					this.alumnos[this.queIndex] = this.alumno;
 					this.limpiarPrincipal();
 					this.actualizacion=false;
-					alert('Docente actualizado exitosamente')
+					alert('alumno actualizado exitosamente')
 				}
 			},
-			async eliminarDocente(id, index){
-				if( confirm(`¿Desea eliminar el docente de la entidad ${this.docentes[index].nombres} ${this.docentes[index].apellidos}?`) ){
+			async eliminarAlumno(id, index){
+				if( confirm(`¿Desea eliminar el alumno de la entidad ${this.alumnos[index].nombres} ${this.alumnos[index].apellidos}?`) ){
 					let data = new FormData();
 					data.append('pedir', 'delete')
 					data.append('id', id)
-					data.append('docente', JSON.stringify(this.docente));
-					let respServ = await fetch('./api/Docente.php',{
+					data.append('alumno', JSON.stringify(this.alumno));
+					let respServ = await fetch('./api/Alumno.php',{
 						method: 'POST', body:data
 					});
 					let resp = await respServ.text()
 					if(resp == 'ok'){
-						this.docentes.splice(index,1);
+						this.alumnos.splice(index,1);
 					}
 				}
 			},
-			async buscarDocente(){
+			async buscarAlumno(){
 				let datos = new FormData();
 				datos.append('pedir', 'listar')
 				datos.append('texto', this.texto)
 				if(this.especialidadSearch>0){ datos.append('idEspecialidad', this.especialidadSearch); }				
-				this.docentes = [];
-				let respServ = await fetch('./api/Docente.php',{
+				this.alumnos = [];
+				let respServ = await fetch('./api/Alumno.php',{
 					method: 'POST', body:datos
 				});
-				this.docentes = await respServ.json();
+				this.alumnos = await respServ.json();
 				
 			},
 			fechaLatam(fechita){
@@ -232,7 +240,7 @@
 				}
 			}
 		}
-  }).mount('#app')
+	}).mount('#app')
 </script>
 </body>
 </html>

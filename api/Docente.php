@@ -11,11 +11,11 @@ switch( $_POST['pedir']){
 function listar($db){
 	$filas = [];
 	$filtro = '';
-	if( isset($_POST['id']) ){ $filtro = 'and id = '.$_POST['id'];}
+	if( isset($_POST['id']) ){ $filtro = 'and d.id = '.$_POST['id'];}
 	if( isset($_POST['idEspecialidad']) ){ $filtro .= ' and idEspecialidad = '.$_POST['idEspecialidad'];}
 	if( isset($_POST['texto']) ){ $filtro .= ' and (nombres like "%'.$_POST['texto'].'%" or apellidos like "%'.$_POST['texto'].'%" or dni = "'.$_POST['texto'].'" )';}
 	//echo $filtro;
-	$sql = $db->query("SELECT d.*, e.descripcion as nomEspecialidad from docentes d inner join especialidad e on e.id = d.idEspecialidad where d.activo =1 {$filtro} order by apellidos asc;");
+	$sql = $db->query("SELECT a.*, e.descripcion as nomEspecialidad from docentes d inner join especialidad e on e.id = d.idEspecialidad where d.activo =1 {$filtro} order by apellidos asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;
@@ -69,7 +69,7 @@ function actualizar($db){
 }
 function borrar($db){
 	
-	$sql = $db->prepare('UPDATE `convenios` set `activo` =0 WHERE `id`= ? ;');
+	$sql = $db->prepare('UPDATE `docentes` set `activo` =0 WHERE `id`= ? ;');
 	if($sql->execute([ $_POST['id'] ])){
 		echo 'ok';
 	}else{

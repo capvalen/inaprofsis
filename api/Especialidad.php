@@ -7,7 +7,7 @@ switch( $_POST['pedir']){
 
 function listar($db){
 	$filas = [];
-	$sql = $db->query("SELECT * from especialidad where activo =1 order by descripcion asc;");
+	$sql = $db->query("SELECT * from especialidades where activo =1 order by descripcion asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;

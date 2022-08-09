@@ -87,6 +87,10 @@
 					<select class="form-select" v-model="curso.idPrograma">
 						<option v-for="programa in programas" :value="programa.id">{{programa.descripcion}}</option>
 					</select>
+					<label for="">Especialidad</label>
+					<select class="form-select" id="" v-model="curso.idEspecialidad">
+						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
+					</select>
 					<label for="">Tipo de evento</label>
 					<select class="form-select" id="" v-model="curso.idEvento">
 						<option v-for="evento in eventos" :value="evento.id">{{evento.descripcion}}</option>
@@ -109,8 +113,6 @@
 					<select class="form-select" id="" v-model="curso.idConvenio">
 						<option v-for="convenio in convenios" :value="convenio.id">{{convenio.entidad}}</option>
 					</select>
-					<label for="">Código de curso</label>
-					<input type="text" class="form-control" v-model="curso.codigo">
 					<label class="fw-bold">Precios</label>
 					<div class="row row-cols-2">
 						<div class="col">
@@ -214,6 +216,10 @@
 					<input type="text" class="form-control" v-model="curso.catalogoLink">
 					<label for="">Video (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.videoLink">
+					<div class="gap"><button class="btn btn-outline-primary my-2" @click="crearCodigo()"><i class="bi bi-upc-scan"></i> Generar código</button></div>
+					<label for="">Código</label>
+					<input type="text" class="form-control" v-model="curso.codigo">
+
 					
 
 					
@@ -223,7 +229,7 @@
 
 
 					<div class="d-grid mt-2" v-if="!actualizacion">
-						<button class="btn btn-outline-primary" @click="agregarCurso()"><i class="bi bi-cloud-plus"></i> Agregar curso</button>
+						<button v-if="puedeGuardar" class="btn btn-outline-primary" @click="agregarCurso()"><i class="bi bi-cloud-plus"></i> Agregar curso</button>
 					</div>
 					<div class="d-grid mt-2" v-else>
 						<button class="btn btn-outline-success" @click="actualizarCurso()"><i class="bi bi-pencil-square"></i> Actualizar curso</button>
@@ -247,8 +253,9 @@
       return {
 				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false, texto:'', programaSearch:-1, eventoSearch:-1,anioSearch:'',
 				curso:{
-					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
-				}
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:''
+				},
+				puedeGuardar:false, correlativo:-1
       }
     },
 		mounted(){
@@ -258,7 +265,7 @@
 		methods:{
 			limpiarPrincipal(){
 				this.curso = {
-					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:''
 				};
 			},
 			async pedirCursos(){
@@ -282,6 +289,10 @@
 					method: 'POST', body:data
 				});
 				this.eventos = await respServEvento.json();
+				let respServEspecialidad = await fetch('./api/Especialidad.php',{
+					method: 'POST', body:data
+				});
+				this.especialidades = await respServEspecialidad.json();
 				let respServModalidad = await fetch('./api/Modalidad.php',{
 					method: 'POST', body:data
 				});
@@ -404,6 +415,56 @@
 						method: 'POST', body:datos
 					});
 					this.cursos = await respServ.json();
+				}
+			},
+			async crearCodigo(){
+				if(this.curso.idEspecialidad==1 || this.curso.idEvento==1 || this.curso.idModalidad==1 || this.curso.inicio=='' || this.curso.inicio==null || this.curso.anio =='' ){
+					alert('Debe rellenar los campos importantes: Especialidad, Evento, Modalidad, Fech. inicio y Año ');
+				}else{
+					let datos = new FormData();
+					datos.append('pedir', 'correlativo')
+					let respServ = await fetch('./api/Curso.php',{
+						method:'POST', body:datos
+					});
+					this.correlativo = parseInt(await respServ.text());
+					if(this.correlativo>-1){
+						let letEspecialidad = this.especialidades.find(x => x.id = this.curso.idEspecialidad).abreviatura;
+						let letEvento = this.eventos.find(x => x.id = this.curso.idEvento).abreviatura;
+						let letModalidad = this.modalidades.find(x => x.id = this.curso.idModalidad).abreviatura;
+						let letRomanos = this.numerosRomanos(moment(this.curso.inicio).format('M'))
+						this.curso.codigo = ('00'+this.correlativo).slice(-2)+`-${letEspecialidad}-${letEvento}-${letModalidad}-${letRomanos}-${this.curso.anio}`;
+						let datos = new FormData();
+						datos.append('pedir', 'verificar')
+						datos.append('correlativo', this.curso.codigo)
+						let respVerificacion = await fetch('./api/Curso.php', {
+							method:'POST', body:datos
+						});
+						let codigoLibre = await respVerificacion.text()
+						if(parseInt(codigoLibre)==0){
+							this.puedeGuardar=true;
+						}else{
+							alert('El código que intenta usar ya debe estar en uso')
+							this.puedeGuardar=false;
+						}
+					}
+				}
+				
+			},
+			numerosRomanos(queNum){
+				switch (parseInt(queNum)) {
+					case 1: return 'I'; break;
+					case 2: return 'II'; break;
+					case 3: return 'III'; break;
+					case 4: return 'IV'; break;
+					case 5: return 'V'; break;
+					case 6: return 'VI'; break;
+					case 7: return 'VII'; break;
+					case 8: return 'VIII'; break;
+					case 9: return 'IX'; break;
+					case 10: return 'X'; break;
+					case 11: return 'XI'; break;
+					case 12: return 'XII'; break;
+					case '': break;
 				}
 			}
 		}

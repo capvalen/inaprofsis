@@ -7,6 +7,8 @@
 	<?php menu(); ?>
 	<style>
 		label{font-size:0.8rem;}
+		.text-naranja{color:#ff8f1b}
+		.text-ligero{color: #d9d9d9!important;}
 	</style>
 	<div class="container-fluid" id="app">
 		<div class="row">
@@ -180,29 +182,30 @@
 					<div class="card-body">
 						<div class="d-flex justify-content-between">
 							<p>Lista de matriculados</p>
-							<button class="btn btn-sm btn-outline-success"><i class="bi bi-person-bounding-box"></i> Matricular alumno</button>
+							<button class="btn btn-sm btn-outline-warning" @click="abrirOff()"><i class="bi bi-award"></i> Matricular alumno</button>
 						</div>
 						<div class="table-responsive-md">
 		
 							<table class="table table-hover">
 								<thead>
 									<th>N°</th>
-									<th>Nombre</th>
-									<th>Programa</th>
-									<th>Evento</th>
-									<th>Año</th>
+									<th>Apellidos y nombres</th>
 									<th>Fecha</th>
-									<th>@</th>
+									<th>Precio</th>
+									<th>Pagó</th>
+									<th>Resta</th>
+									<th>Certificado</th>
 		
 								</thead>
 								<tbody>
-									<tr v-for="(curso, index) in cursos">
+									<tr v-for="(alumno, index) in alumnos">
 										<td>{{index+1}}</td>
-										<td><a class="text-decoration-none" :href="'cursoDetalle.php?id='+curso.id">{{curso.nombre}}</a></td>
-										<td>{{curso.desPrograma}}</td>
-										<td>{{curso.desEvento}}</td>
-										<td>{{curso.anio}}</td>
-										<td>{{fechaLatam(curso.inicio)}}</td>
+										<td><a class="text-decoration-none" :href="'alumnoDetalle.php?id='+alumno.idAlumno">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
+										<td>{{fechaLatam(alumno.fecha)}}</td>
+										<td>{{alumno.precio}}</td>
+										<td>{{alumno.pago}}</td>
+										<td>{{alumno.debe}}</td>
+										<td>{{alumno.estado}}</td>
 										<td>
 											<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
 											<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
@@ -218,42 +221,107 @@
 			
 		</div>
 
+		<!-- inicio Offcanvas -->
+		<div class="offcanvas offcanvas-end" tabindex="-1" id="offMatricula" >
+			<div class="offcanvas-header">
+				<h5 class="offcanvas-title" >Matricular</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				<p class="mb-0">Primero ubique al alumno a matricular:</p>
+				<p class="fst-italic">Filtro: Nombre, Apellido, Dni y <kbd><i class="bi bi-arrow-return-left"></i> Enter</kbd></p>
+				<input type="text" class="form-control mb-2" @keypress.enter="buscarCandidato()" v-model="texto">
+				<div v-if="!ocultarTabla">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>Apellidos y Nombres</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(candidato, indice) in candidatos" :key="candidato.id">
+								<td class="text-capitalize"><span class="me-2" :class="{'text-ligero': candidato.idMorosidad==1, 'text-danger': candidato.idMorosidad==2, 'text-naranja': candidato.idMorosidad==3, 'text-warning': candidato.idMorosidad==4, 'text-success': candidato.idMorosidad==5 }"><i class="bi bi-circle-fill"></i></span> </span> {{candidato.apellidos}} {{candidato.nombres}}</td>
+								<td><button class="btn btn-outline-warning border-0 btn-sm" @click="seleccionarCandidato(indice)"><i class="bi bi-award"></i></button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div v-if="verSeleccionado">
+					<p>Seleccionado</p>
+					<dl>
+						<dt>Apellidos y nombres</dt>
+						<dd>{{postulante.apellidos}} {{postulante.nombres}}</dd>
+						<dt>D.N.I.</dt>
+						<dd>{{postulante.dni}}</dd>
+						<dt>Celulares</dt>
+						<dd>{{postulante.celular1}} {{postulante.celular2}} </dd>
+						<dt>Morosidad</dt>
+						<dd><span :class="{'text-ligero': postulante.idMorosidad==1, 'text-danger': postulante.idMorosidad==2, 'text-naranja': postulante.idMorosidad==3, 'text-warning': postulante.idMorosidad==4, 'text-success': postulante.idMorosidad==5 }"><i class="bi bi-circle-fill"></i></span> </span></dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+		<!-- Fin Offcanvas -->
+
 		
 	</div>
 
 <?php pie(); ?>
 <script src="js/moment.min.js"></script>
 <script>
+	var offMatricula;
   const { createApp } = Vue
 
   createApp({
     data() {
       return {
-				cursos:[],
+				cursos:[], alumnos:[], candidatos:[], texto:'', ocultarTabla:true, verSeleccionado:false,
 				curso:{
 					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
-				}
+				},
+				postulante:{}
       }
     },
 		mounted(){
 			this.pedirCurso();
-			
+			offMatricula = new bootstrap.Offcanvas(document.getElementById('offMatricula'))
 		},
 		methods:{
 			
 			async pedirCurso(){
 				let data = new FormData();
-				data.append('pedir', 'listar')
+				data.append('pedir', 'matriculados')
 				data.append('id', '<?= $_GET['id']?>')
 				let respServ = await fetch('./api/Curso.php',{
 					method: 'POST', body:data
 				});
 				let resp = await respServ.json();
-				this.cursos = resp;
-				this.curso = this.cursos[0];
-				console.log(this.cursos);
+				this.matriculas = resp;
+				this.alumnos = this.matriculas[1];
 			},
-			
+			async buscarCandidato(){
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				data.append('texto', this.texto)
+				let respServ = await fetch('./api/Alumno.php',{
+					method: 'POST', body:data
+				});
+				this.candidatos = await respServ.json();
+				this.ocultarTabla=false;
+				this.verSeleccionado=false;
+			},
+			abrirOff(){
+				this.candidatos=[];
+				this.texto='';
+				this.ocultarTabla=true;
+				this.verSeleccionado=false;
+				offMatricula.show();
+			},
+			seleccionarCandidato(index){
+				this.postulante= this.candidatos[index];
+				this.ocultarTabla=true;
+				this.verSeleccionado=true;
+			},
 			fechaLatam(fechita){
 				if(fechita == null){
 					return '';

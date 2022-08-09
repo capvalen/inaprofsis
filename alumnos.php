@@ -7,6 +7,8 @@
 	<?php menu(); ?>
 	<style>
 		label{font-size:0.8rem;}
+		.text-naranja{color:#ff8f1b}
+		.text-ligero{color: #d9d9d9!important;}
 	</style>
 	<div class="container-fluid" id="app">
 		<div class="row">
@@ -49,7 +51,9 @@
 						<tbody>
 							<tr v-if="alumnos.length>0" v-for="(alumno, index) in alumnos" :key="alumno.id">
 								<td>{{index+1}}</td>
-								<td class="text-capitalize"><a :href="'alumnoDetalle.php?id='+alumno.id">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
+								<td class="text-capitalize">
+									<span class="me-2" :class="{'text-ligero': alumno.idMorosidad==1, 'text-danger': alumno.idMorosidad==2, 'text-naranja': alumno.idMorosidad==3, 'text-warning': alumno.idMorosidad==4, 'text-success': alumno.idMorosidad==5 }"><i class="bi bi-circle-fill"></i></span> 
+									<a :href="'alumnoDetalle.php?id='+alumno.id">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
 								<td>{{alumno.nomEspecialidad}}</td>
 								<td>{{fechaLatam(alumno.fechaNacimiento)}}</td>
 								<td>{{alumno.correo1}}</td>
@@ -100,7 +104,7 @@
 					<label for="">N° Hijos</label>
 					<input type="number" class="form-control"  v-model="alumno.hijos">
 					<label for="">Especialidad</label>
-					<select class="form-select" v-model="alumno.idEspecialidad">
+					<select class="form-select" v-model="alumno.idEspecialidad" id="sltEspecialidad1">
 						<option value="-1">Todos</option>
 						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
 					</select>
@@ -180,7 +184,7 @@
 				});
 				let resp = await respServ.text()
 				if(parseInt(resp) >=1){
-					this.alumnos.push( {'id': 'resp', ...this.alumno});
+					this.alumnos.push( {'id': 'resp', ...this.alumno, 'nomEspecialidad': document.getElementById('sltEspecialidad1').options[document.getElementById('sltEspecialidad1').selectedIndex].text });
 					this.limpiarPrincipal();
 					alert('alumno guardado exitosamente')
 				}

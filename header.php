@@ -6,8 +6,7 @@ function cabecera($titulo){
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><?= $titulo ." - INAPROF INTRANET"; ?></title>
-	<!-- CSS only -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
 </head>
 	<?php
@@ -16,8 +15,7 @@ function cabecera($titulo){
 
 <?php
 function pie(){ ?>
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/vue@3"></script>
 
 <?php
@@ -47,10 +45,9 @@ function menu(){ ?>
 						<li><a class="dropdown-item" href="resoluciones.php">Resoluciones <span class="text-decoration-line-through">(pendiente)</span></a></li>
 						<li><a class="dropdown-item" href="cursos.php">Cursos</a></li>
 						<li><a class="dropdown-item" href="alumnos.php">Alumnos</a></li>
-						<li><a class="dropdown-item" href="#">Colaboradores</a></li>
-						<li><a class="dropdown-item" href="#">Agenda colaboradores</a></li>
+						<li><a class="dropdown-item" href="colaboradores.php">Colaboradores</a></li>
 						<li><a class="dropdown-item" href="#">Códigos</a></li>
-						<li><a class="dropdown-item" href="#">Informes</a></li>
+						<li><a class="dropdown-item" href="informes.php">Informes</a></li>
 						<li><a class="dropdown-item" href="#">Oficios</a></li>
 					</ul>
 				</li>

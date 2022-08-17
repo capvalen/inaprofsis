@@ -106,7 +106,7 @@
 					<label for="">Particuliaridades del docente</label>
 					<textarea class="form-control" rows="3"  v-model="docente.particularidades"></textarea>
 					<label for="">Hoja de vida</label>
-					<input type="file" class="form-control"  >
+					<input type="file" class="form-control" >
 					<div class="d-grid mt-2" v-if="!actualizacion">
 						<button class="btn btn-outline-primary" @click="agregarDocente()"><i class="bi bi-cloud-plus"></i> Agregar docente</button>
 					</div>

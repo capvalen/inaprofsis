@@ -71,42 +71,28 @@
 				<div class="card">
 					<div class="card-body">
 					<p class="fw-bold">Ingreso nuevo registro</p>
-					<label for="">Especialidad</label>
-					<select class="form-select" v-model="informe.idEspecialidad">
-						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
+					
+					<label for="">Rama</label>
+					<select v-model="informe.idRama" class="form-select">
+						<option v-for="rama in ramas" :value="rama.id">{{rama.descripcion}}</option>
 					</select>
-					<label for="">Nombres</label>
-					<input type="text" class="form-control"  v-model="informe.nombres">
-					<label for="">Apellidos</label>
-					<input type="text" class="form-control"  v-model="informe.apellidos">
-					<label for="">D.N.I.</label>
-					<input type="text" class="form-control"  v-model="informe.dni">
-					<label for="">Fecha de nacimiento</label>
-					<input type="date" class="form-control"  v-model="informe.fechaNacimiento">
-					<label for="">Celular 1</label>
-					<input type="text" class="form-control"  v-model="informe.celular1">
-					<label for="">Celular 2</label>
-					<input type="text" class="form-control"  v-model="informe.celular2">
-					<label for="">Correo 1</label>
-					<input type="text" class="form-control"  v-model="informe.correo1">
-					<label for="">Correo 2</label>
-					<input type="text" class="form-control"  v-model="informe.correo2">
-					<label for="">N° Registro Conciliador 1</label>
-					<input type="text" class="form-control"  v-model="informe.registroConciliador1">
-					<label for="">N° Registro Conciliador 2</label>
-					<input type="text" class="form-control"  v-model="informe.registroConciliador2">
-					<label for="">N° Registro Capacitador</label>
-					<input type="text" class="form-control"  v-model="informe.registroCapacitador">
-					<label for="">Dirección</label>
-					<input type="text" class="form-control"  v-model="informe.direccion">
-					<label for="">Lugar de trabajo</label>
-					<input type="text" class="form-control"  v-model="informe.lugarTrabajo">
-					<label for="">N° Hijos</label>
-					<input type="text" class="form-control"  v-model="informe.hijos">
-					<label for="">Particuliaridades del informe</label>
-					<textarea class="form-control" rows="3"  v-model="informe.particularidades"></textarea>
-					<label for="">Hoja de vida</label>
-					<input type="file" class="form-control"  >
+					<label for="">Área</label>
+					<select v-model="informe.idArea" class="form-select">
+						<option v-for="area in areas" :value="area.id">{{area.descripcion}}</option>
+						</select>
+					<label for="">Fecha</label>
+					<input type="date" class="form-control" v-model="informe.fecha">
+					<label for="">Dirigido a</label>
+					<input type="text" class="form-control" v-model="informe.dirigido">
+					<label for="">De</label>
+					<input type="text" class="form-control" v-model="informe.de">
+					<label for="">Cargo</label>
+					<input type="text" class="form-control" v-model="informe.cargo">
+					<label for="">Asunto</label>
+					<input type="text" class="form-control" v-model="informe.asunto">
+					<label for="">Documento</label>
+					<input type="file" class="form-control" v-model="informe.documento">
+					
 					<div class="d-grid mt-2" v-if="!actualizacion">
 						<button class="btn btn-outline-primary" @click="agregarInforme()"><i class="bi bi-cloud-plus"></i> Agregar informe</button>
 					</div>
@@ -129,10 +115,10 @@
   createApp({
     data() {
       return {
-				informes:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
+				informes:[], ramas:[], areas:[], actualizacion:false,
 				informe :{
-					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
+					idRama:1, idArea:1,
+					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:''
 				}
       }
     },
@@ -150,11 +136,20 @@
 			async pedirInformes(){
 				let data = new FormData();
 				data.append('pedir', 'listar')
-				let respServ = await fetch('./api/Informe.php',{
+				/* let respServ = await fetch('./api/Informe.php',{
 					method: 'POST', body:data
 				});
-				let resp = await respServ.json();
-				this.informes = resp;
+				this.informes = await respServ.json(); */
+
+				let respServRamas = await fetch('./api/Ramas.php',{
+					method: 'POST', body:data
+				});
+				this.ramas = await respServRamas.json();
+				let respServAreas = await fetch('./api/Areas.php',{
+					method: 'POST', body:data
+				});
+				this.areas = await respServAreas.json();
+
 			},
 			async cargarDatos(){
 				let data = new FormData();
@@ -165,6 +160,8 @@
 				this.especialidades = await respServ.json()
 			},
 			async agregarInforme(){
+				if(this.informe.fecha==''){this.informe.fecha=null;}
+
 				let data = new FormData();
 				data.append('pedir', 'add')
 				data.append('informe', JSON.stringify(this.informe));

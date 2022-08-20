@@ -1,7 +1,7 @@
 <?php include 'header.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
-<?php cabecera('Informes'); ?>
+<?php cabecera('Oficios'); ?>
 <body>
 
 	<?php menu(); ?>
@@ -12,7 +12,7 @@
 		<div class="row">
 			<div class="col-12 col-md-7 col-lg-9">
 				<div class="row col px-5">
-					<h1>Informes</h1>
+					<h1>Oficios</h1>
 					
 					<div class="row ">
 						<div class="col-12 col-md-6">
@@ -37,12 +37,12 @@
 							</select>
 						</div>
 						<div class="col-2 col-md d-flex align-content-end align-content-md-center flex-wrap">
-							<button class="btn btn-outline-secondary" type="button" @click="buscarInforme()" id="txtBuscar"><i class="bi bi-search"></i></button>
+							<button class="btn btn-outline-secondary" type="button" @click="buscarOficio()" id="txtBuscar"><i class="bi bi-search"></i></button>
 						</div>
 					</div>
 				</div>
 				<div class="table-responsive-md">
-					<p>Listado de informes:</p>
+					<p>Listado de oficios:</p>
 					<table class="table table-hover">
 						<thead>
 							<th>N°</th>
@@ -54,16 +54,16 @@
 							<th>@</th>
 						</thead>
 						<tbody>
-							<tr v-if="informes.length>0" v-for="(informe, index) in informes" :key="informe.id">
+							<tr v-if="oficios.length>0" v-for="(oficio, index) in oficios" :key="oficio.id">
 								<td>{{index+1}}</td>
-								<td class="text-capitalize">Informe académico {{informe.codigo}}</td>
-								<td>{{informe.asunto}}</td>
-								<td>{{fechaLatam(informe.fecha)}}</td>
-								<td>{{informe.dirigido}}</td>
-								<td>{{informe.documento}}</td>
+								<td class="text-capitalize">Oficio {{oficio.codigo}}</td>
+								<td>{{oficio.asunto}}</td>
+								<td>{{fechaLatam(oficio.fecha)}}</td>
+								<td>{{oficio.dirigido}}</td>
+								<td>{{oficio.documento}}</td>
 								<td>
-									<!-- <button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarInforme(index)"><i class="bi bi-pencil-square"></i></button> -->
-									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarInforme(informe.id, index)"><i class="bi bi-x-circle-fill"></i></button>
+									<!-- <button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarOficio(index)"><i class="bi bi-pencil-square"></i></button> -->
+									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarOficio(oficio.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
 							</tr>
 							<tr v-else>
@@ -80,33 +80,33 @@
 					<p class="fw-bold">Ingreso nuevo registro</p>
 					
 					<label for="">Rama</label>
-					<select v-model="informe.idRama" class="form-select">
+					<select v-model="oficio.idRama" class="form-select">
 						<option v-for="rama in ramas" :value="rama.id">{{rama.descripcion}}</option>
 					</select>
 					<label for="">Área</label>
-					<select v-model="informe.idArea" class="form-select">
+					<select v-model="oficio.idArea" class="form-select">
 						<option v-for="area in areas" :value="area.id">{{area.descripcion}}</option>
 						</select>
 					<label for="">Fecha</label>
-					<input type="date" class="form-control" v-model="informe.fecha">
+					<input type="date" class="form-control" v-model="oficio.fecha">
 					<label for="">Dirigido a</label>
-					<input type="text" class="form-control" v-model="informe.dirigido">
+					<input type="text" class="form-control" v-model="oficio.dirigido">
 					<label for="">De</label>
-					<input type="text" class="form-control" v-model="informe.de">
+					<input type="text" class="form-control" v-model="oficio.de">
 					<label for="">Cargo</label>
-					<input type="text" class="form-control" v-model="informe.cargo">
+					<input type="text" class="form-control" v-model="oficio.cargo">
 					<label for="">Asunto</label>
-					<input type="text" class="form-control" v-model="informe.asunto">
+					<input type="text" class="form-control" v-model="oficio.asunto">
 					<label for="">Documento</label>
-					<input type="file" class="form-control" v-model="informe.documento">
+					<input type="file" class="form-control" v-model="oficio.documento">
 					<button class="btn btn-outline-primary my-2" @click="codificar" v-if="!sePuedeGuardar">Codificar</button>
-					<input type="text" class="form-control" v-model="informe.codigo" placeholder="Código">
+					<input type="text" class="form-control" v-model="oficio.codigo" placeholder="Código">
 					
 					<div class="d-grid mt-2" v-if="!actualizacion">
-						<button class="btn btn-outline-primary" @click="agregarInforme()" v-if="sePuedeGuardar"><i class="bi bi-cloud-plus"></i> Agregar informe</button>
+						<button class="btn btn-outline-primary" @click="agregarOficio()" v-if="sePuedeGuardar"><i class="bi bi-cloud-plus"></i> Agregar oficio</button>
 					</div>
 					<div class="d-grid mt-2" v-else>
-						<button class="btn btn-outline-success" @click="actualizarInforme()"><i class="bi bi-pencil-square"></i> Actualizar informe</button>
+						<button class="btn btn-outline-success" @click="actualizarOficio()"><i class="bi bi-pencil-square"></i> Actualizar oficio</button>
 					</div>
 					</div>
 				</div>
@@ -124,31 +124,31 @@
   createApp({
     data() {
       return {
-				informes:[], ramas:[], areas:[], actualizacion:false,sePuedeGuardar:false, ramaSearch:-1, areaSearch:-1, texto:'',
-				informe :{
+				oficios:[], ramas:[], areas:[], actualizacion:false,sePuedeGuardar:false, ramaSearch:-1, areaSearch:-1, texto:'',
+				oficio :{
 					idRama:1, idArea:1,
 					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:''
 				}
       }
     },
 		mounted(){
-			this.pedirInformes();
+			this.pedirOficios();
 			this.cargarDatos();
 		},
 		methods:{
 			limpiarPrincipal(){
-				this.informe = {
+				this.oficio = {
 					idRama:1, idArea:1,
 					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:''
 				}
 			},
-			async pedirInformes(){
+			async pedirOficios(){
 				let data = new FormData();
 				data.append('pedir', 'listar')
-				/* let respServ = await fetch('./api/Informe.php',{
+				/* let respServ = await fetch('./api/Oficio.php',{
 					method: 'POST', body:data
 				});
-				this.informes = await respServ.json(); */
+				this.oficios = await respServ.json(); */
 
 				let respServRamas = await fetch('./api/Ramas.php',{
 					method: 'POST', body:data
@@ -163,86 +163,86 @@
 			async cargarDatos(){
 				let data = new FormData();
 				data.append('pedir', 'listar')
-				let respServ = await fetch('./api/Informe.php',{
+				let respServ = await fetch('./api/Oficio.php',{
 					method: 'POST', body:data
 				});
-				this.informes = await respServ.json()
+				this.oficios = await respServ.json()
 			},
-			async agregarInforme(){
-				if(this.informe.fecha==''){this.informe.fecha=null;}
+			async agregarOficio(){
+				if(this.oficio.fecha==''){this.oficio.fecha=null;}
 
 				let data = new FormData();
 				data.append('pedir', 'add')
-				data.append('informe', JSON.stringify(this.informe));
-				let respServ = await fetch('./api/Informe.php',{
+				data.append('oficio', JSON.stringify(this.oficio));
+				let respServ = await fetch('./api/Oficio.php',{
 					method: 'POST', body:data
 				});
 				let resp = await respServ.text()
 				if(parseInt(resp) >=1){
-					this.informes.push( {'id': 'resp', ...this.informe});
+					this.oficios.push( {'id': 'resp', ...this.oficio});
 					this.limpiarPrincipal();
-					alert('Informe guardado exitosamente')
+					alert('Oficio guardado exitosamente')
 				}
 			},
-			editarInforme(mIndex){
+			editarOficio(mIndex){
 				this.queIndex = mIndex;
-				this.informe = JSON.parse(JSON.stringify(this.informes[mIndex]));
+				this.oficio = JSON.parse(JSON.stringify(this.oficios[mIndex]));
 				this.actualizacion=true;
 				this.sePuedeGuardar=true;
 			},
-			async actualizarInforme(){
+			async actualizarOficio(){
 				let data = new FormData();
 				data.append('pedir', 'update')
-				data.append('informe', JSON.stringify(this.informe));
-				let respServ = await fetch('./api/Informe.php',{
+				data.append('oficio', JSON.stringify(this.oficio));
+				let respServ = await fetch('./api/Oficio.php',{
 					method: 'POST', body:data
 				});
 				let resp = await respServ.text()
 				if(parseInt(resp) ==1){
-					this.informes[this.queIndex] = this.informe;
+					this.oficios[this.queIndex] = this.oficio;
 					this.limpiarPrincipal();
 					this.actualizacion=false;
-					alert('Informe actualizado exitosamente')
+					alert('Oficio actualizado exitosamente')
 				}
 			},
-			async eliminarInforme(id, index){
-				if( confirm(`¿Desea eliminar el informe de la entidad ${this.informes[index].codigo}?`) ){
+			async eliminarOficio(id, index){
+				if( confirm(`¿Desea eliminar el oficio de la entidad ${this.oficios[index].codigo}?`) ){
 					let data = new FormData();
 					data.append('pedir', 'delete')
 					data.append('id', id)
-					let respServ = await fetch('./api/Informe.php',{
+					let respServ = await fetch('./api/Oficio.php',{
 						method: 'POST', body:data
 					});
 					let resp = await respServ.text()
 					if(resp == 'ok'){
-						this.informes.splice(index,1);
+						this.oficios.splice(index,1);
 					}
 				}
 			},
-			async buscarInforme(){
+			async buscarOficio(){
 				let datos = new FormData();
 				datos.append('pedir', 'listar')
 				datos.append('texto', this.texto)
 				if(this.ramaSearch>0){ datos.append('idRama', this.ramaSearch); }
 				if(this.areaSearch>0){ datos.append('idArea', this.areaSearch); }
-				this.informes = [];
-				let respServ = await fetch('./api/Informe.php',{
+				this.oficios = [];
+				let respServ = await fetch('./api/Oficio.php',{
 					method: 'POST', body:datos
 				});
-				this.informes = await respServ.json();
+				this.oficios = await respServ.json();
 				
 			},
 			async codificar(){
 				let datos = new FormData();
 				datos.append('pedir', 'codificar')
-				let respServ = await fetch('./api/Informe.php',{
+				let respServ = await fetch('./api/Oficio.php',{
 					method: 'POST', body:datos
 				});
 				let correlativo = await respServ.text();
 				if(parseInt(correlativo)>0){
-					let letRama = this.ramas.find(x => x.id = this.informe.idRama).abreviatura;
-					let letArea = this.areas.find(x => x.id = this.informe.idArea).abreviatura;
-					this.informe.codigo = ('000'+ correlativo).slice(-3)+ `-${moment(this.informe.fecha).format('YYYY')}-${letRama}-${letArea}-INAPROF`;
+					let letRama = this.ramas.find(x => x.id = this.oficio.idRama).abreviatura;
+					let letArea = this.areas.find(x => x.id = this.oficio.idArea).abreviatura;
+					this.oficio.codigo = ('000'+ correlativo).slice(-3)+ `-${moment(this.oficio.fecha).format('YYYY')}-${letRama}-${letArea}-INAPROF`;
 					this.sePuedeGuardar=true;
 				}else{
 					this.sePuedeGuardar=false;

@@ -48,7 +48,7 @@ function menu(){ ?>
 						<li><a class="dropdown-item" href="colaboradores.php">Colaboradores</a></li>
 						<li><a class="dropdown-item" href="#">Códigos</a></li>
 						<li><a class="dropdown-item" href="informes.php">Informes</a></li>
-						<li><a class="dropdown-item" href="#">Oficios</a></li>
+						<li><a class="dropdown-item" href="oficios.php">Oficios</a></li>
 					</ul>
 				</li>
 				

@@ -203,7 +203,6 @@
 					let data = new FormData();
 					data.append('pedir', 'delete')
 					data.append('id', id)
-					data.append('docente', JSON.stringify(this.docente));
 					let respServ = await fetch('./api/Docente.php',{
 						method: 'POST', body:data
 					});

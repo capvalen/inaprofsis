@@ -189,8 +189,13 @@
 							<table class="table table-hover">
 								<thead>
 									<th>N°</th>
-									<th>Apellidos y nombres</th>
 									<th>Fecha</th>
+									<th>Tipo certificado</th>
+									<th>Estado</th>
+									<th>Apellidos y nombres</th>
+									<th>D.N.I.</th>
+									<th>Celular</th>
+									<th>Correo</th>
 									<th>Precio</th>
 									<th>Pagó</th>
 									<th>Resta</th>
@@ -200,8 +205,20 @@
 								<tbody>
 									<tr v-for="(alumno, index) in alumnos">
 										<td>{{index+1}}</td>
-										<td><a class="text-decoration-none" :href="'alumnoDetalle.php?id='+alumno.idAlumno">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
 										<td>{{fechaLatam(alumno.fecha)}}</td>
+										<td>
+											<span v-if="alumno.tipoCertificado==1">Virtual</span>
+											<span v-else>Físico</span>
+										</td>
+										<td>
+											<span class="tooltips" v-if="alumno.idEstadoCertificado==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin generar"><i class="bi bi-circle"></i></span>
+											<span class="text-warning tooltips" v-if="alumno.idEstadoCertificado==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Emitido"><i class="bi bi-circle-half"></i></span>
+											<span class="text-sucess tooltips" v-if="alumno.idEstadoCertificado==3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Entregado"><i class="bi bi-circle-fill"></i></span>
+										</td>
+										<td><a class="text-decoration-none" :href="'alumnoDetalle.php?id='+alumno.idAlumno">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
+										<td>{{alumno.dni}}</td>
+										<td>{{alumno.celular1}}</td>
+										<td>{{alumno.correo1}}</td>
 										<td>{{alumno.precio}}</td>
 										<td>{{alumno.pago}}</td>
 										<td>{{alumno.debe}}</td>
@@ -247,7 +264,7 @@
 					</table>
 				</div>
 				<div v-if="verSeleccionado">
-					<p>Seleccionado</p>
+					<p class="mt-2"><strong>Seleccionado</strong></p>
 					<dl>
 						<dt>Apellidos y nombres</dt>
 						<dd>{{postulante.apellidos}} {{postulante.nombres}}</dd>
@@ -257,6 +274,34 @@
 						<dd>{{postulante.celular1}} {{postulante.celular2}} </dd>
 						<dt>Morosidad</dt>
 						<dd><span :class="{'text-ligero': postulante.idMorosidad==1, 'text-danger': postulante.idMorosidad==2, 'text-naranja': postulante.idMorosidad==3, 'text-warning': postulante.idMorosidad==4, 'text-success': postulante.idMorosidad==5 }"><i class="bi bi-circle-fill"></i></span> </span></dd>
+						<dt>Tipo de matrícula</dt>
+						<dd>
+							<select class="form-select" id="sltTipoMatriculaPostulante" v-model="postulante.idTipoMatricula" @change="cambiarPrecioPagar()">
+								<option v-for="matricula in tipoMatricula" :value="matricula.id">{{matricula.descripcion}}</option>
+							</select>
+						</dd>
+						<dt>Tipo de pago</dt>
+						<dd>
+							<select class="form-select" id="sltTipoPagoPostulante" v-model="postulante.comoPaga">
+								<option value="1">Pago total</option>
+								<option value="2">Pago en cuotas</option>
+							</select>
+						</dd>
+						<dt>Tipo de Certificado</dt>
+						<dd>
+							<select class="form-select" id="sltTipoPagoPostulante" v-model="postulante.tipoCertificado">
+								<option value="1">Virtual</option>
+								<option value="2">Físico</option>
+							</select>
+						</dd>
+						<dt>Cantidad de Cuotas</dt>
+						<dd>
+							<input type="number" class="form-control" v-model="postulante.cuotas" >
+						</dd>
+						<dt>Precio a pagar</dt>
+						<dd>S/ {{monedaLatam(precioApagar)}}</dd>
+						
+						<button class="btn btn-outline-success" @click="evaluarPreMatricula"><i class="bi bi-patch-plus-fill"></i> Generar matrícula</button>
 					</dl>
 				</div>
 			</div>
@@ -275,29 +320,59 @@
   createApp({
     data() {
       return {
-				cursos:[], alumnos:[], candidatos:[], texto:'', ocultarTabla:true, verSeleccionado:false,
+				cursos:[], alumnos:[], candidatos:[], texto:'', ocultarTabla:true, verSeleccionado:false, tipoMatricula:[],
 				curso:{
 					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
 				},
-				postulante:{}
+				postulante:{idTipoMatricula:1}, precioApagar:0, clientePaga:0, comoPaga:1, cuotas:1,tipoCertificado:1
       }
     },
 		mounted(){
 			this.pedirCurso();
+			this.pedirDatos();
 			offMatricula = new bootstrap.Offcanvas(document.getElementById('offMatricula'))
+			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+				var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+					return new bootstrap.Tooltip(tooltipTriggerEl)
+				})
 		},
 		methods:{
 			
-			async pedirCurso(){
+			async pedirDatos(){
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				let respServ = await fetch('./api/TipoMatriculas.php',{
+					method: 'POST', body:data
+				});
+				this.tipoMatricula = await respServ.json();
+				
+			},
+			pedirCurso(){
 				let data = new FormData();
 				data.append('pedir', 'matriculados')
 				data.append('id', '<?= $_GET['id']?>')
-				let respServ = await fetch('./api/Curso.php',{
+				let respServ = fetch('./api/Curso.php',{
 					method: 'POST', body:data
+				})
+				.then(respuesta=>{ 
+					this.matriculas = respuesta.json()
+						.then(matriculas=>{
+							this.curso = matriculas[0];
+							this.alumnos = matriculas[1];
+						})
+						.then( ()=>{
+							var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+							var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+								return new bootstrap.Tooltip(tooltipTriggerEl)
+							})
+						})
 				});
-				let resp = await respServ.json();
+				/* let resp = await respServ.json();
 				this.matriculas = resp;
-				this.alumnos = this.matriculas[1];
+				
+				 */
+				
+				
 			},
 			async buscarCandidato(){
 				let data = new FormData();
@@ -310,6 +385,48 @@
 				this.ocultarTabla=false;
 				this.verSeleccionado=false;
 			},
+			cambiarPrecioPagar(){
+				let index = document.getElementById('sltTipoMatriculaPostulante').value;
+				switch(index){
+					case '1': this.precioApagar=this.curso.pGeneral; break;
+					case '2': this.precioApagar=this.curso.pExalumnos; break;
+					case '3': this.precioApagar=this.curso.pCorporativo; break;
+					case '4': this.precioApagar=this.curso.pPronto; break;
+					case '5': this.precioApagar=this.curso.pRemate; break;
+					case '6': this.precioApagar=this.curso.pMediaBeca; break;
+					case '7': this.precioApagar=this.curso.pEspecial; break;
+				}
+			},
+			async evaluarPreMatricula(){
+				/* if(this.clientePaga=='' || this.clientePaga<=0){
+					alert('El cliente debe matricularse con un monto mínimo');
+				}else */
+				if(document.getElementById('sltTipoMatriculaPostulante').value==7 && this.clientePaga < this.curso.pEspecial ){
+					alert('El monto mínimo a pagar es de '+ this.curso.pEspecial +' soles.')
+				}else if(this.postulante.cuotas =='' || this.postulante.cuotas<0){
+					alert('El mínimo de cuotas debe ser 1')
+				}
+				else{
+					//matricular
+					let data = new FormData();
+					data.append('pedir', 'matricular')
+					data.append('idCurso', '<?= $_GET['id']; ?>')
+					data.append('idAlumno', this.postulante.id)
+					data.append('idTipoMatricula', document.getElementById('sltTipoMatriculaPostulante').value )
+					data.append('comoPago', this.postulante.comoPaga )
+					data.append('cuotas', this.postulante.cuotas)
+					data.append('tipoCertificado', this.postulante.tipoCertificado)
+					data.append('precio', this.precioApagar)
+					
+					data.append('texto', this.texto)
+					let respServ = await fetch('./api/Curso.php',{
+						method: 'POST', body:data
+					});
+					console.log(respServ.text());
+				}
+			},
+
+
 			abrirOff(){
 				this.candidatos=[];
 				this.texto='';
@@ -319,6 +436,11 @@
 			},
 			seleccionarCandidato(index){
 				this.postulante= this.candidatos[index];
+				this.postulante.idTipoMatricula=1;
+				this.postulante.comoPaga=1;
+				this.postulante.cuotas=1;
+				this.postulante.tipoCertificado=1;
+				this.precioApagar=this.curso.pGeneral;
 				this.ocultarTabla=true;
 				this.verSeleccionado=true;
 			},
@@ -329,7 +451,6 @@
 					return moment(fechita, 'YYYY-MM-DD').format('DD/MM/YYYY')
 				}
 			},
-			
 			monedaLatam(monedita){
 				return parseFloat(monedita).toFixed(2);
 			},

@@ -9,6 +9,7 @@ switch( $_POST['pedir']){
 	case 'correlativo': correlativo($db); break;
 	case 'verificar': verificar($db); break;
 	case 'matriculados': matriculados($db); break;
+	case 'matricular': matricular($db); break;
 }
 
 function listar($db){
@@ -158,7 +159,7 @@ function matriculados($db){
 			$filas[]= $row;
 		}
 
-		$sqlMatriculados = $db->query("SELECT m.*, a.nombres, a.apellidos, ce.estado FROM `matricula` m
+		$sqlMatriculados = $db->query("SELECT m.*, a.nombres, a.apellidos, a.dni, a.celular1, a.correo1, ce.estado FROM `matricula` m
 		inner join alumnos a on a.id = m.idAlumno
 		inner join certificado_estado ce on ce.id = m.idEstadoCertificado
 		where idCurso = {$_POST['id']} and m.activo = 1;");
@@ -170,5 +171,25 @@ function matriculados($db){
 
 		echo json_encode(array_merge($filas, array(1=>$matriculados)));
 	}
+}
+
+function matricular($db){
+	
+	$sql = $db->prepare('INSERT INTO `matricula`(
+		`idCurso`, `idAlumno`, `idTipoMatricula`, `precio`, `debe`, 
+		`comoPago`, `cuotas`, `tipoCertificado`
+		) VALUES (
+		?,?,?,?,?,
+		?,?,?
+		);');
+	if($sql->execute([
+		$_POST['idCurso'],$_POST['idAlumno'],$_POST['idTipoMatricula'],$_POST['precio'],$_POST['precio'],
+		$_POST['comoPago'],$_POST['cuotas'],$_POST['tipoCertificado']
+	])){
+		echo $db->lastInsertId();
+	}else{
+		echo -1;
+	}
+	
 }
 ?>

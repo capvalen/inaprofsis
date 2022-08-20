@@ -17,7 +17,7 @@ function listar($db){
 	if( isset($_POST['idArea']) ){ $filtro .= ' and idArea = '.$_POST['idArea'];}
 	if( isset($_POST['texto']) ){ $filtro .= ' and (codigo like "%'.$_POST['texto'].'%" or dirigido like "%'.$_POST['texto'].'%" or cargo = "'.$_POST['texto'].'" or asunto = "'.$_POST['texto'].'" )';}
 	//echo $filtro;
-	$sql = $db->query("SELECT * FROM `informes` where activo =1 {$filtro} order by codigo asc;");
+	$sql = $db->query("SELECT * FROM `oficios` where activo =1 {$filtro} order by codigo asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;
@@ -26,9 +26,9 @@ function listar($db){
 	}
 }
 function agregar($db){
-	$conv = json_decode($_POST['informe'], true);
+	$conv = json_decode($_POST['oficio'], true);
 	
-	$sql = $db->prepare('INSERT INTO `informes`(
+	$sql = $db->prepare('INSERT INTO `oficios`(
 		`idRama`, `idArea`, `fecha`, `dirigido`, `de`, 
 		`cargo`, `asunto`, `documento`,`codigo`) VALUES (
 		?,?,?,?,?,
@@ -43,9 +43,9 @@ function agregar($db){
 	}
 }
 function actualizar($db){
-	$conv = json_decode($_POST['informe'], true);
+	$conv = json_decode($_POST['oficio'], true);
 	
-	$sql = $db->prepare('UPDATE `informes` set 
+	$sql = $db->prepare('UPDATE `oficios` set 
 		`idRama`=?, `idArea`=?, `fecha`=?, `dirigido`=?, `de`=?, 
 		`cargo`=?, `asunto`=?, `documento`=?, `codigo`=? WHERE `id`= ? ;');
 	if($sql->execute([
@@ -60,7 +60,7 @@ function actualizar($db){
 }
 function borrar($db){
 	
-	$sql = $db->prepare('UPDATE `informes` set `activo` =0 WHERE `id`= ? ;');
+	$sql = $db->prepare('UPDATE `oficios` set `activo` =0 WHERE `id`= ? ;');
 	if($sql->execute([ $_POST['id'] ])){
 		echo 'ok';
 	}else{
@@ -69,7 +69,7 @@ function borrar($db){
 }
 function codificar($db){
 	
-	$sql = $db->prepare('SELECT id FROM informes order by id desc limit 1 ;');
+	$sql = $db->prepare('SELECT id FROM oficios order by id desc limit 1 ;');
 	if($sql->execute()){
 		$registro = $sql->fetch(PDO::FETCH_ASSOC);
 		echo $registro['id']+1;

@@ -9,6 +9,7 @@
 		label{font-size:0.8rem;}
 		.text-naranja{color:#ff8f1b}
 		.text-ligero{color: #d9d9d9!important;}
+		.tdLargo{white-space: nowrap}
 	</style>
 	<div class="container-fluid" id="app">
 		<div class="row">
@@ -182,23 +183,34 @@
 					<div class="card-body">
 						<div class="d-flex justify-content-between">
 							<p>Lista de matriculados</p>
-							<button class="btn btn-sm btn-outline-warning" @click="abrirOff()"><i class="bi bi-award"></i> Matricular alumno</button>
+							<div>
+								<button class="btn btn-sm btn-outline-info mx-1" @click="abrirOff()"><i class="bi bi-award"></i> Matricular alumno</button>
+								<button class="btn btn-sm btn-outline-danger mx-1" @click="abrirOff()"><i class="bi bi-exclamation-square"></i> Finalizar curso</button>
+							</div>
 						</div>
-						<div class="table-responsive-md">
+						<div class="table-responsive">
 		
 							<table class="table table-hover">
 								<thead>
 									<th>N°</th>
 									<th>Fecha</th>
-									<th>Tipo certificado</th>
+									<th>Tipo Cert</th>
+									<th>Cod. Cert</th>
 									<th>Estado</th>
 									<th>Apellidos y nombres</th>
 									<th>D.N.I.</th>
 									<th>Celular</th>
 									<th>Correo</th>
-									<th>Precio</th>
+									<th>Costo</th>
+									<th>Entidad</th>
+									<th>N° Operacion</th>
+									<th>Vb Colaborador</th>
+									<th>Vb Banco</th>
+									<th>Courier</th>
+									<th>Distrito / Provincia</th>
+									<th>Referencia</th>
 									<th>Pagó</th>
-									<th>Resta</th>
+									<th>Debe</th>
 									<th>Certificado</th>
 		
 								</thead>
@@ -210,23 +222,37 @@
 											<span v-if="alumno.tipoCertificado==1">Virtual</span>
 											<span v-else>Físico</span>
 										</td>
+										<td>{{alumno.codigoCertificado}}</td>
 										<td>
 											<span class="tooltips" v-if="alumno.idEstadoCertificado==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin generar"><i class="bi bi-circle"></i></span>
 											<span class="text-warning tooltips" v-if="alumno.idEstadoCertificado==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Emitido"><i class="bi bi-circle-half"></i></span>
 											<span class="text-sucess tooltips" v-if="alumno.idEstadoCertificado==3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Entregado"><i class="bi bi-circle-fill"></i></span>
 										</td>
-										<td><a class="text-decoration-none" :href="'alumnoDetalle.php?id='+alumno.idAlumno">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
+										<td class="tdLargo text-capitalize"><a class="text-decoration-none" :href="'alumnoDetalle.php?id='+alumno.idAlumno">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
 										<td>{{alumno.dni}}</td>
 										<td>{{alumno.celular1}}</td>
 										<td>{{alumno.correo1}}</td>
 										<td>{{alumno.precio}}</td>
+										<td>{{alumno.entidad}}</td>
+										<td>{{alumno.nOperacion}}</td>
+										<td class="tdLargo">
+											<span class="tooltips" v-if="alumno.vbColaborador==0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin Verificar"><i class="bi bi-circle"></i></span>
+											<span class="text-warning tooltips" v-if="alumno.vbColaborador==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Verificado"><i class="bi bi-check-lg"></i></span>
+											<span class="text-sucess tooltips" v-if="alumno.vbColaborador==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Rechazado"><i class="bi bi-x-lg"></i></span>
+											<span class="ms-1">{{alumno.nomUsuario}}</span>
+										</td>
+										<td>
+											<span class="tooltips" v-if="alumno.vbBanco==0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin Verificar"><i class="bi bi-circle"></i></span>
+											<span class="text-warning tooltips" v-if="alumno.vbBanco==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Verificado"><i class="bi bi-check-lg"></i></span>
+											<span class="text-sucess tooltips" v-if="alumno.vbBanco==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Rechazado"><i class="bi bi-x-lg"></i></span>
+										</td>
+										<td>{{alumno.courier}}</td>
+										<td>{{alumno.distrito}}</td>
+										<td>{{alumno.referencia}}</td>
 										<td>{{alumno.pago}}</td>
 										<td>{{alumno.debe}}</td>
-										<td>{{alumno.estado}}</td>
-										<td>
-											<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
-											<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
-										</td>
+										<td class="tdLargo">{{alumno.estado}}</td>
+										
 									</tr>
 								</tbody>
 							</table>
@@ -367,12 +393,6 @@
 							})
 						})
 				});
-				/* let resp = await respServ.json();
-				this.matriculas = resp;
-				
-				 */
-				
-				
 			},
 			async buscarCandidato(){
 				let data = new FormData();
@@ -422,7 +442,11 @@
 					let respServ = await fetch('./api/Curso.php',{
 						method: 'POST', body:data
 					});
-					console.log(respServ.text());
+					let idRespuesta = await respServ.text();
+					if(parseInt(idRespuesta)>0 ){
+						this.pedirCurso();
+						offMatricula.hide();
+					}
 				}
 			},
 

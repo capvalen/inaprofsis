@@ -6,7 +6,9 @@ switch( $_POST['pedir']){
 	case 'add': agregar($db); break;
 	case 'update': actualizar($db); break;
 	case 'delete': borrar($db); break;
+	case 'deleteMatricula': borrarMatricula($db); break;
 	case 'matriculas': matriculas($db); break;
+
 }
 
 function listar($db){
@@ -77,17 +79,27 @@ function borrar($db){
 		echo -1;
 	}
 }
-
+function borrarMatricula($db){
+	
+	$sql = $db->prepare('UPDATE `matricula` set `activo` =0 WHERE `id`= ? ;');
+	if($sql->execute([ $_POST['id'] ])){
+		echo 'ok';
+	}else{
+		echo -1;
+	}
+}
 function matriculas($db){
 	$filas = []; $matriculas=[];
 	
 	//echo $filtro;
-	$sql = $db->query("SELECT a.*, e.descripcion as nomEspecialidad from alumnos a inner join especialidades e on e.id = a.idEspecialidad where a.activo =1 and a.id = {$_POST['id']} order by apellidos asc;");
+	$sql = $db->query("SELECT a.*, e.descripcion as nomEspecialidad
+	from alumnos a inner join especialidades e on e.id = a.idEspecialidad where a.activo =1 and a.id = {$_POST['id']} order by apellidos asc;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;
 		}
-		$sqlMatriculados = $db->query("SELECT m.*, c.nombre, ce.estado FROM `matricula` m
+		$sqlMatriculados = $db->query("SELECT m.*, c.nombre, ce.estado, '' as entidad, '' as nOperacion, '0' as vbColaborador, 2 as vbBanco,  '' as courier, '' as distrito, '' as referencia, 'Carlos' as nomUsuario, '' as codigoCertificado 
+		FROM `matricula` m
 		inner join cursos c on m.idCurso = c.id
 		inner join certificado_estado ce on ce.id = m.idEstadoCertificado
 		where idAlumno = {$_POST['id']} and m.activo = 1;");

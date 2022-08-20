@@ -91,12 +91,14 @@
 					<input type="date" class="form-control" v-model="oficio.fecha">
 					<label for="">Dirigido a</label>
 					<input type="text" class="form-control" v-model="oficio.dirigido">
-					<label for="">De</label>
-					<input type="text" class="form-control" v-model="oficio.de">
-					<label for="">Cargo</label>
-					<input type="text" class="form-control" v-model="oficio.cargo">
 					<label for="">Asunto</label>
 					<input type="text" class="form-control" v-model="oficio.asunto">
+					<label for="">Referencia</label>
+					<input type="text" class="form-control" v-model="oficio.de">
+					<label for="">Suscribe</label>
+					<input type="text" class="form-control" v-model="oficio.suscribe">
+					<label for="">Cargo</label>
+					<input type="text" class="form-control" v-model="oficio.cargo">
 					<label for="">Documento</label>
 					<input type="file" class="form-control" v-model="oficio.documento">
 					<button class="btn btn-outline-primary my-2" @click="codificar" v-if="!sePuedeGuardar">Codificar</button>
@@ -127,7 +129,7 @@
 				oficios:[], ramas:[], areas:[], actualizacion:false,sePuedeGuardar:false, ramaSearch:-1, areaSearch:-1, texto:'',
 				oficio :{
 					idRama:1, idArea:1,
-					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:''
+					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:'', suscribe:''
 				}
       }
     },
@@ -139,7 +141,7 @@
 			limpiarPrincipal(){
 				this.oficio = {
 					idRama:1, idArea:1,
-					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:''
+					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:'', suscribe:''
 				}
 			},
 			async pedirOficios(){

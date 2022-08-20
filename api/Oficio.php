@@ -30,12 +30,12 @@ function agregar($db){
 	
 	$sql = $db->prepare('INSERT INTO `oficios`(
 		`idRama`, `idArea`, `fecha`, `dirigido`, `de`, 
-		`cargo`, `asunto`, `documento`,`codigo`) VALUES (
+		`cargo`, `asunto`, `documento`,`codigo`, `suscribe`) VALUES (
 		?,?,?,?,?,
-		?,?,?,? );');
+		?,?,?,?,?);');
 	if($sql->execute([
 		$conv['idRama'],$conv['idArea'],$conv['fecha'],$conv['dirigido'],$conv['de'],
-		$conv['cargo'],$conv['asunto'],$conv['documento'],$conv['codigo']
+		$conv['cargo'],$conv['asunto'],$conv['documento'],$conv['codigo'],$conv['suscribe']
 	])){
 		echo $db->lastInsertId();
 	}else{

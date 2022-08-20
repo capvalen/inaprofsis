@@ -159,10 +159,12 @@ function matriculados($db){
 			$filas[]= $row;
 		}
 
-		$sqlMatriculados = $db->query("SELECT m.*, a.nombres, a.apellidos, a.dni, a.celular1, a.correo1, ce.estado FROM `matricula` m
+		$sqlMatriculados = $db->query("SELECT m.*, a.nombres, a.apellidos, a.dni, a.celular1, a.correo1, ce.estado, '' as entidad, '' as nOperacion, '0' as vbColaborador, 2 as vbBanco,  '' as courier, '' as distrito, '' as referencia, 'Carlos' as nomUsuario, '' as codigoCertificado
+		FROM `matricula` m
 		inner join alumnos a on a.id = m.idAlumno
 		inner join certificado_estado ce on ce.id = m.idEstadoCertificado
-		where idCurso = {$_POST['id']} and m.activo = 1;");
+		where idCurso = {$_POST['id']} and m.activo = 1
+		order by a.apellidos, a.nombres asc;");
 		if($sqlMatriculados->execute()){
 			while($cursosA = $sqlMatriculados -> fetch(PDO::FETCH_ASSOC)){
 				$matriculados[] = $cursosA;
@@ -181,10 +183,13 @@ function matricular($db){
 		) VALUES (
 		?,?,?,?,?,
 		?,?,?
-		);');
+		);
+		UPDATE `cursos` SET 
+		`vacantes`=`vacantes`-1
+		where `id` = ?;');
 	if($sql->execute([
 		$_POST['idCurso'],$_POST['idAlumno'],$_POST['idTipoMatricula'],$_POST['precio'],$_POST['precio'],
-		$_POST['comoPago'],$_POST['cuotas'],$_POST['tipoCertificado']
+		$_POST['comoPago'],$_POST['cuotas'],$_POST['tipoCertificado'],$_POST['idCurso']
 	])){
 		echo $db->lastInsertId();
 	}else{

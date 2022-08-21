@@ -173,7 +173,7 @@
 					<label for="">Vacantes disponibles</label>
 					<input type="text" class="form-control" v-model="curso.vacantes">
 					<label for="">Autorización (archivo)</label>
-					<input type="file" class="form-control" v-model="curso.vacantes">
+					<input type="file" class="form-control" v-model="curso.autorizacion">
 					<label for="">Cambios realizados</label>
 					<textarea class="form-control" rows="3" v-model="curso.detalles"></textarea>
 					<label for="">Lista de alumnos enviado:</label>

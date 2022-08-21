@@ -34,7 +34,7 @@ function agregar($db){
 		`idMatricula`, `idCargos`, `fecha`, `idBanco`, `nOperacion`, 
 		`monto`, `pagado`, `observaciones`,`idUsuario`, idAlumno
 		) VALUES (
-		?,?,?,?,cast(? as integer),
+		?,?,?,?,?,
 		?,?,?,?,?
 		);
 		UPDATE `matricula` SET 

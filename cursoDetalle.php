@@ -82,7 +82,7 @@
 								</p>
 							</div>
 							<div class="col">
-								<p><strong>Vacantes</strong> <span>{{curso.vacantes}}</span></p>
+								<p><strong>Vacantes</strong> <span>{{curso.vacantes}}/{{curso.cupos}}</span></p>
 							</div>
 							<div class="col">
 								<p><strong>Lista alumnos: </strong> 
@@ -184,8 +184,8 @@
 						<div class="d-flex justify-content-between">
 							<p>Lista de matriculados</p>
 							<div>
-								<button class="btn btn-sm btn-outline-info mx-1" @click="abrirOff()"><i class="bi bi-award"></i> Matricular alumno</button>
-								<button class="btn btn-sm btn-outline-danger mx-1" @click="abrirOff()"><i class="bi bi-exclamation-square"></i> Finalizar curso</button>
+								<button class="btn btn-sm btn-outline-primary mx-1" @click="abrirOff()" v-if="curso.vacantes>0 && curso.finalizado==0"><i class="bi bi-award"></i> Matricular alumno ({{curso.vacantes}} libre)</button>
+								<button class="btn btn-sm btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#modalFinalizar" v-if="curso.finalizado==0"><i class="bi bi-exclamation-square"></i> Finalizar curso</button>
 							</div>
 						</div>
 						<div class="table-responsive">
@@ -224,9 +224,9 @@
 										</td>
 										<td>{{alumno.codigoCertificado}}</td>
 										<td>
-											<span class="tooltips" v-if="alumno.idEstadoCertificado==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin generar"><i class="bi bi-circle"></i></span>
-											<span class="text-warning tooltips" v-if="alumno.idEstadoCertificado==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Emitido"><i class="bi bi-circle-half"></i></span>
-											<span class="text-sucess tooltips" v-if="alumno.idEstadoCertificado==3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Entregado"><i class="bi bi-circle-fill"></i></span>
+											<span class="tooltips" v-if="alumno.estadoIdCertificado==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin generar"><i class="bi bi-circle"></i></span>
+											<span class="text-warning tooltips" v-if="alumno.estadoIdCertificado==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Emitido"><i class="bi bi-circle-half"></i></span>
+											<span class="text-sucess tooltips" v-if="alumno.estadoIdCertificado==3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Entregado"><i class="bi bi-circle-fill"></i></span>
 										</td>
 										<td class="tdLargo text-capitalize"><a class="text-decoration-none" :href="'alumnoDetalle.php?id='+alumno.idAlumno">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
 										<td>{{alumno.dni}}</td>
@@ -234,7 +234,7 @@
 										<td>{{alumno.correo1}}</td>
 										<td>{{alumno.precio}}</td>
 										<td>{{alumno.entidad}}</td>
-										<td>{{alumno.nOperacion}}</td>
+										<td>{{alumno.nOperacion=='0' ? '':alumno.nOperacion }}</td>
 										<td class="tdLargo">
 											<span class="tooltips" v-if="alumno.vbColaborador==0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin Verificar"><i class="bi bi-circle"></i></span>
 											<span class="text-warning tooltips" v-if="alumno.vbColaborador==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Verificado"><i class="bi bi-check-lg"></i></span>
@@ -250,7 +250,10 @@
 										<td>{{alumno.distrito}}</td>
 										<td>{{alumno.referencia}}</td>
 										<td>{{alumno.pago}}</td>
-										<td>{{alumno.debe}}</td>
+										<td>
+											<span class="text-danger" v-if="alumno.debe>0">{{alumno.debe}}</span>
+											<span v-else>{{alumno.debe}}</span>
+										</td>
 										<td class="tdLargo">{{alumno.estado}}</td>
 										
 									</tr>
@@ -334,23 +337,56 @@
 		</div>
 		<!-- Fin Offcanvas -->
 
+		<!-- Modal para finalizar -->
+		<div class="modal fade" id="modalFinalizar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="">Finalizar curso</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<p>Esta por finalizar el curso con <strong>{{curso.vacantes}}</strong> vacantes libres de un total de <strong>{{curso.cupos}}</strong></p>
+						<p>A continuación se realizarán los siguientes pasos:</p>
+						<ol>
+							<li>Crear la resolución</li>
+							<li>Crear código de certificado para cada alumno</li>
+							<li>Crear los espacios libres que hagan falta</li>
+						</ol>
+						<div>
+							<p class="my-0">Fecha</p>
+							<input type="date" class="form-control mb-0" v-model="finalizar.fecha">
+							<p class="my-0">Ingrese el <strong>tomo</strong> donde se ubicará (Romanos)</p>
+							<input type="text" class="form-control mb-0" v-model="finalizar.tomo">
+							<p class="mt-0"><small class="fst-italic">Puede editarlo posteriormente</small></p>
+
+						</div>
+						<p><strong>Por favor, no cierre la ventana hasta que el sistema indique que haya finalizado.</strong></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-danger" @click="finalizarCurso" v-if="!seFinaliza" ><i class="bi bi-exclamation-circle-fill"></i> Finalizar curso</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		
 	</div>
 
 <?php pie(); ?>
 <script src="js/moment.min.js"></script>
 <script>
-	var offMatricula;
+	var offMatricula, modalFinalizar;
   const { createApp } = Vue
 
   createApp({
     data() {
       return {
-				cursos:[], alumnos:[], candidatos:[], texto:'', ocultarTabla:true, verSeleccionado:false, tipoMatricula:[],
+				cursos:[], alumnos:[], candidatos:[], texto:'', ocultarTabla:true, verSeleccionado:false, seFinaliza:false, tipoMatricula:[],
 				curso:{
 					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
 				},
-				postulante:{idTipoMatricula:1}, precioApagar:0, clientePaga:0, comoPaga:1, cuotas:1,tipoCertificado:1
+				postulante:{idTipoMatricula:1}, precioApagar:0, clientePaga:0, comoPaga:1, cuotas:1,tipoCertificado:1, finalizar:{fecha: moment().format('YYYY-MM-DD'),tomo:''}
       }
     },
 		mounted(){
@@ -361,6 +397,7 @@
 				var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 					return new bootstrap.Tooltip(tooltipTriggerEl)
 				})
+			modalFinalizar = new bootstrap.Modal(document.getElementById('modalFinalizar'))
 		},
 		methods:{
 			
@@ -447,6 +484,34 @@
 						this.pedirCurso();
 						offMatricula.hide();
 					}
+				}
+			},
+			async finalizarCurso(){
+				this.seFinaliza=true;
+				let codigo='';
+				if(this.curso.idPrograma==4){codigo = "-"+moment(this.finalizar.fecha).format('YYYY')+`-D-EC/ESDERECHO`;}
+				else{ codigo = "-"+moment(this.finalizar.fecha).format('YYYY')+`-D-CFC/ESDERECHO`;}
+				
+
+				let data = new FormData();
+				data.append('pedir', 'finalizar')
+				data.append('idCurso', '<?= $_GET['id']; ?>')
+				data.append('tomo', this.finalizar.tomo)
+				data.append('fecha', this.finalizar.fecha)
+				data.append('codigo', codigo)
+				data.append('vacantes', this.curso.vacantes)
+				data.append('cupos', this.curso.cupos)
+				data.append('claveCurso', this.curso.codigo)
+				let respServ = await fetch('./api/Curso.php',{
+					method: 'POST', body:data
+				});
+				let idResolucion = await respServ.text();
+				modalFinalizar.hide();
+				if( parseInt(idResolucion) > 0){
+					this.curso.finalizado=1;
+					alert(`Guardado exitosamente con código: ${idResolucion}${codigo}`)
+				}else{
+					alert('Hubo un problema en el proceso, informe a soporte.')
 				}
 			},
 

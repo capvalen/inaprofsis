@@ -93,6 +93,7 @@
 										<th>N°</th>
 										<th>Nombre curso</th>
 										<th>Tipo Cert.</th>
+										<th>Est. Cert.</th>
 										<th>Cod. Cert.</th>
 										<th>Fecha</th>
 										<th>Costo</th>
@@ -102,6 +103,7 @@
 										<th>Vb Banco</th>
 										<th>Courier</th>
 										<th>Distrito / Provincia</th>
+										<th>Dirección</th>
 										<th>Referencia</th>
 										<th>Pagó</th>
 										<th>Debe</th>
@@ -116,11 +118,16 @@
 											<span v-if="curso.tipoCertificado==1">Virtual</span>
 											<span v-else>Físico</span>
 										</td>
+										<td>
+											<span class="tooltips" v-if="curso.estadoIdCertificado==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin generar"><i class="bi bi-circle"></i></span>
+											<span class="text-warning tooltips" v-if="curso.estadoIdCertificado==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Emitido"><i class="bi bi-circle-half"></i></span>
+											<span class="text-sucess tooltips" v-if="curso.estadoIdCertificado==3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Entregado"><i class="bi bi-circle-fill"></i></span>
+										</td>
 										<td>{{curso.codigoCertificado}}</td>
 										<td>{{fechaLatam(curso.fecha)}}</td>
 										<td>{{curso.precio}}</td>
 										<td>{{curso.entidad}}</td>
-										<td>{{curso.nOperacion}}</td>
+										<td>{{curso.nOperacion=='0' ? '':curso.nOperacion }}</td>
 											<td class="tdLargo">
 												<span class="tooltips" v-if="curso.vbColaborador==0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin Verificar"><i class="bi bi-circle"></i></span>
 												<span class="text-warning tooltips" v-if="curso.vbColaborador==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Verificado"><i class="bi bi-check-lg"></i></span>
@@ -134,13 +141,17 @@
 											</td>
 											<td>{{curso.courier}}</td>
 											<td>{{curso.distrito}}</td>
+											<td>{{curso.direccion}}</td>
 											<td>{{curso.referencia}}</td>
 
 										<td>{{curso.pago}}</td>
-										<td>{{curso.debe}}</td>
+										<td>
+											<span class="text-danger" v-if="curso.debe>0">{{curso.debe}}</span>
+											<span v-else>{{curso.debe}}</span>
+										</td>
 										<td>{{curso.estado}}</td>
 										<td class="tdLargo">
-											<button class="btn btn-outline-primary btn-sm mx-1" data-bs-toggle="modal" data-bs-target="#modalAddCargo"  @click="cargoExtra.idMatricula = curso.id;sePuedeGuardar=false;"><i class="bi bi-plus-lg"></i> Agregar cargo</button>
+											<button class="btn btn-outline-primary btn-sm mx-1 m" data-bs-toggle="modal" data-bs-target="#modalAddCargo"  @click="prepararPrePago(curso.id)"><i class="bi bi-plus-lg"></i> Agregar pago/cargo</button>
 											<button class="btn btn-outline-danger btn-sm mx-1" @click="anularMatricula(curso.id, curso.nombre)"><i class="bi bi-bug"></i> Anular matrícula</button>
 										</td>
 									</tr>
@@ -252,7 +263,7 @@
 							<option v-for="banco in bancos" :value="banco.id">{{banco.entidad}}</option>
 						</select>
 						<div v-if="cargoExtra.idBanco>1">
-							<p >N° operación:</p>
+							<p >N° operación: <span class="fst-italic"><i class="bi bi-exclamation-circle-fill"></i> Sólo numeros</span></p>
 							<input type="number" class="form-control mb-3" v-model="cargoExtra.nOperacion">
 						</div>
 						<p>Monto a agregar:</p>
@@ -264,8 +275,8 @@
 					</div>
 					<div class="modal-footer ">
 						<div class="alert alert-danger" v-if="alerta.length>0" role="alert"><i class="bi bi-bug"></i> {{alerta}}</div>
-						<button type="button" class="btn btn-outline-warning" v-if="!sePuedeGuardar" @click="verificarPago"><i class="bi bi-box2" ></i> Verificar pago</button>
-						<button type="button" class="btn btn-outline-primary" v-if="sePuedeGuardar" @click="registrarCargoExtra"><i class="bi bi-plus-lg"></i> Agregar cargo</button>
+						<button type="button" class="btn btn-outline-warning me-auto" v-if="!sePuedeGuardar" @click="verificarPago"><i class="bi bi-box2" ></i> Verificar pago</button>
+						<button type="button" class="btn btn-outline-primary ms-auto" v-if="sePuedeGuardar" @click="registrarCargoExtra"><i class="bi bi-plus-lg"></i> Agregar cargo</button>
 					</div>
 				</div>
 			</div>
@@ -317,17 +328,29 @@
 				this.distritos = temp[2];
 				this.mostrarProvincias()
 			},
-			async pedirAlumno(){
+			pedirAlumno(){
 				let data = new FormData();
 				data.append('pedir', 'matriculas')
 				data.append('id', '<?= $_GET['id']?>')
-				let respServ = await fetch('./api/Alumno.php',{
+				fetch('./api/Alumno.php',{
 					method: 'POST', body:data
+				})
+				.then(respuesta =>{
+					respuesta.json()
+					.then(resp=>{
+						this.matricula = resp;
+						this.alumno = this.matricula[0];
+						this.cursos = this.matricula[1];
+					})
+					.then( ()=>{
+						var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+							var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+								return new bootstrap.Tooltip(tooltipTriggerEl)
+							})
+					})
 				});
-				let resp = await respServ.json();
-				this.matricula = resp;
-				this.alumno = this.matricula[0];
-				this.cursos = this.matricula[1];
+				
+				
 			},
 			async pedirPagos(){
 				let data = new FormData();
@@ -339,8 +362,21 @@
 				let resp = await respServ.json();
 				this.pagos = resp;
 			},
+			prepararPrePago(id){
+				this.cargoExtra.idMatricula = id;
+				this.cargoExtra.fecha = moment().format('YYYY-MM-DD');
+				this.cargoExtra.idBanco = 1;
+				this.cargoExtra.monto = 0;
+				this.cargoExtra.pagado = 0;
+				this.cargoExtra.observaciones = '';
+
+				this.sePuedeGuardar=false;
+			},
 			async verificarPago(){
 				this.alerta='';
+				this.cargoExtra.nOperacion = Math.abs(this.cargoExtra.nOperacion);
+				if(this.cargoExtra.nOperacion==NaN){ this.cargoExtra.nOperacion=0;}
+				if(this.cargoExtra.nOperacion==null){ this.cargoExtra.nOperacion=0;}
 				let data = new FormData();
 				data.append('pedir', 'verificar')
 				data.append('idBanco', this.cargoExtra.idBanco )
@@ -413,6 +449,7 @@
 					});
 					let resp = await respServ.text();
 					if(resp =='ok'){
+						this.pedirAlumno();
 						this.pedirPagos();
 					}else{
 						alert('Hubo un error al guardar sus datos, revise nuevamente')
@@ -430,6 +467,7 @@
 					});
 					let resp = await respServ.text();
 					if(resp =='ok'){
+						this.pedirAlumno();
 						this.pedirPagos();
 					}else{
 						alert('Hubo un error al guardar sus datos, revise nuevamente')

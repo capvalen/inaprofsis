@@ -98,14 +98,57 @@ function matriculas($db){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;
 		}
-		$sqlMatriculados = $db->query("SELECT m.*, c.nombre, ce.estado, '' as entidad, '' as nOperacion, '0' as vbColaborador, 2 as vbBanco,  '' as courier, '' as distrito, '' as referencia, 'Carlos' as nomUsuario, '' as codigoCertificado 
+		$sqlMatriculados = $db->query("SELECT m.*, c.nombre, ce.estado
 		FROM `matricula` m
 		inner join cursos c on m.idCurso = c.id
 		inner join certificado_estado ce on ce.id = m.idEstadoCertificado
-		where idAlumno = {$_POST['id']} and m.activo = 1;");
+		where idAlumno = {$_POST['id']} and m.activo = 1 order by m.fecha desc;");
 		if($sqlMatriculados->execute()){
 			while($cursosA = $sqlMatriculados -> fetch(PDO::FETCH_ASSOC)){
-				$matriculas[] = $cursosA;
+				$filasCertificados=[]; $filasPagos=[]; $filasDeliverys=[];
+				
+				$sqlCertificados = $db->prepare("SELECT ce.codigo as codigoCertificado, ce.idCertificadoEstado as estadoIdCertificado FROM `certificados` ce
+				inner join matricula m on m.idCertificado = ce.id
+				where m.id=? ;");
+				if($sqlCertificados -> execute([
+					$cursosA['id'] //contiene idMatricula
+				])){
+					if($sqlCertificados->rowCount()==1){
+						$rowCertificados = $sqlCertificados->fetch(PDO::FETCH_ASSOC);
+						$filasCertificados=$rowCertificados;
+					}
+				}
+
+				$sqlPagos = $db->prepare("SELECT nOperacion, b.entidad, vbColaborador, vbBanco, 'Carlos' as nomUsuario FROM `pagos` p
+				inner join bancos b on b.id = p.idBanco
+				where idMatricula = ? and p.activo = 1 order by p.id desc limit 1;");
+				if($sqlPagos -> execute([
+					$cursosA['id'] //contiene idMatricula
+				])){
+					if($sqlPagos->rowCount()==1){
+						$rowPagos = $sqlPagos->fetch(PDO::FETCH_ASSOC);
+						$filasPagos=$rowPagos;
+					}
+				}
+
+				$sqlDeliverys = $db->prepare("SELECT d.*, c.nombre as courier, de.departamento, pro.provincia, di.distrito, ce.estado
+				FROM `deliverys` d
+				inner join courier c on c.id = d.idCourier
+				inner join ubdepartamento de on de.idDepa = d.idDepartamento
+				inner join ubprovincia pro on pro.idProv = d.idProvincia
+				inner join certificado_estado ce on ce.id = d.idCertificadoEstado
+				inner join ubdistrito di on di.idDist = d.idDistrito
+				where d.activo = 1 and d.idMatricula = ? order by d.id desc limit 1;");
+				if($sqlDeliverys -> execute([
+					$cursosA['id'] //contiene idMatricula
+				])){
+					if($sqlDeliverys->rowCount()==1){
+						$rowDeliverys = $sqlDeliverys->fetch(PDO::FETCH_ASSOC);
+						$filasDeliverys=$rowDeliverys;
+					}
+				}
+
+				$matriculas[] = array_merge($cursosA,$filasPagos,$filasDeliverys,$filasCertificados);
 			}
 		}
 

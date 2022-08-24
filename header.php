@@ -42,11 +42,11 @@ function menu(){ ?>
 					<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<li><a class="dropdown-item" href="convenios.php">Convenios</a></li>
 						<li><a class="dropdown-item" href="docentes.php">Docentes</a></li>
-						<li><a class="dropdown-item" href="resoluciones.php">Resoluciones <span class="text-decoration-line-through">(pendiente)</span></a></li>
+						<li><a class="dropdown-item" href="resoluciones.php">Resoluciones</a></li>
 						<li><a class="dropdown-item" href="cursos.php">Cursos</a></li>
 						<li><a class="dropdown-item" href="alumnos.php">Alumnos</a></li>
 						<li><a class="dropdown-item" href="colaboradores.php">Colaboradores</a></li>
-						<li><a class="dropdown-item" href="#">Códigos</a></li>
+						<!-- <li><a class="dropdown-item" href="#">Códigos</a></li> -->
 						<li><a class="dropdown-item" href="informes.php">Informes</a></li>
 						<li><a class="dropdown-item" href="oficios.php">Oficios</a></li>
 					</ul>

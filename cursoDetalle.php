@@ -222,7 +222,7 @@
 											<span v-if="alumno.tipoCertificado==1">Virtual</span>
 											<span v-else>Físico</span>
 										</td>
-										<td>{{alumno.codigoCertificado}}</td>
+										<td class="tdLargo">{{alumno.correlativo}}/{{alumno.codigoCertificado}}</td>
 										<td>
 											<span class="tooltips" v-if="alumno.estadoIdCertificado==1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Sin generar"><i class="bi bi-circle"></i></span>
 											<span class="text-warning tooltips" v-if="alumno.estadoIdCertificado==2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Emitido"><i class="bi bi-circle-half"></i></span>

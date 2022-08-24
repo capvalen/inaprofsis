@@ -1,7 +1,7 @@
 <?php include 'header.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
-<?php cabecera('Convenios'); ?>
+<?php cabecera('Resoluciones'); ?>
 <body>
 
 	<?php menu(); ?>
@@ -12,8 +12,8 @@
 		<div class="row">
 			<div class="col-12 col-md-7 col-lg-9">
 				<div class="row col px-5">
-					<h1>Convenios</h1>	
-					<p>Listado de convenios por año:</p>
+					<h1>Resoluciones</h1>	
+					<p>Listado de resoluciones por año:</p>
 					<div class="input-group mb-3">
 						<input type="text" class="form-control" placeholder="Filtro" autocomplete="off">
 						<button class="btn btn-outline-secondary" type="button" id="txtBuscar"><i class="bi bi-search"></i></button>
@@ -23,21 +23,21 @@
 					<table class="table table-hover">
 						<thead>
 							<th>N°</th>
-							<th>Entidad</th>
-							<th>Representante</th>
+							<th>Curso</th>
+							<th>Código</th>
 							<th>Fecha</th>
-							<th>Periodo</th>
-							<th>Celular</th>
+							<th>Tomo</th>
+							<th>Documento</th>
 							<th>@</th>
 						</thead>
 						<tbody>
-							<tr>
-								<td>1</td>
-								<td>San Pedro Gallo de Juliaca</td>
-								<td>Luis Garcia Meza</td>
-								<td>14/05/2022</td>
-								<td>2000-2030</td>
-								<td>965200087</td>
+							<tr v-for="(resolucion, index) in resoluciones">
+								<td>{{index+1}}</td>
+								<td>{{resolucion.nomCurso}}</td>
+								<td>{{resolucion.id}}{{resolucion.codigo}}</td>
+								<td>{{fechaLatam(resolucion.fecha)}}</td>
+								<td>{{resolucion.tomo}}</td>
+								<td>{{resolucion.documento}}</td>
 								<td>
 									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarResolucion(index)"><i class="bi bi-pencil-square"></i></button>
 									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarResolucion(resolucion.id, index)"><i class="bi bi-x-circle-fill"></i></button>
@@ -87,7 +87,7 @@
 					</select>
 					<label for="">Horas académicas</label>
 					<input type="number" min=1 class="form-control">
-					<label for="">Convenio</label>
+					<label for="">Resolucion</label>
 					<input type="text" class="form-control">
 					<label for="">Link a la DB</label>
 					<input type="text" class="form-control">
@@ -110,5 +110,129 @@
 
 <?php pie(); ?>
 <script src="js/moment.min.js"></script>
+<script>
+  const { createApp } = Vue
+
+  createApp({
+    data() {
+      return {
+				resoluciones:[], ramas:[], areas:[], actualizacion:false,sePuedeGuardar:false, ramaSearch:-1, areaSearch:-1, texto:'',
+				resolucion :{
+					idRama:1, idArea:1,
+					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:''
+				}
+      }
+    },
+		mounted(){
+			this.cargarDatos();
+		},
+		methods:{
+			limpiarPrincipal(){
+				this.resolucion = {
+					idRama:1, idArea:1,
+					fecha: moment().format('YYYY-MM-DD'), dirigido:'', de:'', cargo:'', asunto:'', documento:'', codigo:''
+				}
+			},
+		
+			async cargarDatos(){
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				let respServ = await fetch('./api/Resoluciones.php',{
+					method: 'POST', body:data
+				});
+				this.resoluciones = await respServ.json()
+			},
+			async agregarResolucion(){
+				if(this.resolucion.fecha==''){this.resolucion.fecha=null;}
+
+				let data = new FormData();
+				data.append('pedir', 'add')
+				data.append('resolucion', JSON.stringify(this.resolucion));
+				let respServ = await fetch('./api/Resolucion.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text()
+				if(parseInt(resp) >=1){
+					this.resoluciones.push( {'id': 'resp', ...this.resolucion});
+					this.limpiarPrincipal();
+					alert('Resolucion guardado exitosamente')
+				}
+			},
+			editarResolucion(mIndex){
+				this.queIndex = mIndex;
+				this.resolucion = JSON.parse(JSON.stringify(this.resoluciones[mIndex]));
+				this.actualizacion=true;
+				this.sePuedeGuardar=true;
+			},
+			async actualizarResolucion(){
+				let data = new FormData();
+				data.append('pedir', 'update')
+				data.append('resolucion', JSON.stringify(this.resolucion));
+				let respServ = await fetch('./api/Resolucion.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text()
+				if(parseInt(resp) ==1){
+					this.resoluciones[this.queIndex] = this.resolucion;
+					this.limpiarPrincipal();
+					this.actualizacion=false;
+					alert('Resolucion actualizado exitosamente')
+				}
+			},
+			async eliminarResolucion(id, index){
+				if( confirm(`¿Desea eliminar el resolucion de la entidad ${this.resoluciones[index].codigo}?`) ){
+					let data = new FormData();
+					data.append('pedir', 'delete')
+					data.append('id', id)
+					let respServ = await fetch('./api/Resolucion.php',{
+						method: 'POST', body:data
+					});
+					let resp = await respServ.text()
+					if(resp == 'ok'){
+						this.resoluciones.splice(index,1);
+					}
+				}
+			},
+			async buscarResolucion(){
+				let datos = new FormData();
+				datos.append('pedir', 'listar')
+				datos.append('texto', this.texto)
+				if(this.ramaSearch>0){ datos.append('idRama', this.ramaSearch); }
+				if(this.areaSearch>0){ datos.append('idArea', this.areaSearch); }
+				this.resoluciones = [];
+				let respServ = await fetch('./api/Resolucion.php',{
+					method: 'POST', body:datos
+				});
+				this.resoluciones = await respServ.json();
+				
+			},
+			async codificar(){
+				let datos = new FormData();
+				datos.append('pedir', 'codificar')
+				let respServ = await fetch('./api/Resolucion.php',{
+					method: 'POST', body:datos
+				});
+				let correlativo = await respServ.text();
+				if(parseInt(correlativo)>0){
+					let letRama = this.ramas.find(x => x.id = this.resolucion.idRama).abreviatura;
+					let letArea = this.areas.find(x => x.id = this.resolucion.idArea).abreviatura;
+					this.resolucion.codigo = ('000'+ correlativo).slice(-3)+ `-${moment(this.resolucion.fecha).format('YYYY')}-${letRama}-${letArea}-INAPROF`;
+					this.sePuedeGuardar=true;
+				}else{
+					this.sePuedeGuardar=false;
+					alert('Hubo un error inesperado al generar el código, inténtelo nuevamente')
+				}
+			},
+
+			fechaLatam(fechita){
+				if(fechita == '' || fechita == null){
+					return '';
+				}else{
+					return moment(fechita).format('DD/MM/YYYY')
+				}
+			}
+		}
+  }).mount('#app')
+</script>
 </body>
 </html>

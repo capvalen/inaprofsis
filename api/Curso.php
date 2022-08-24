@@ -171,9 +171,11 @@ function matriculados($db){
 
 				$filasCertificados=[]; $filasPagos=[]; $filasDeliverys=[];
 				
-				$sqlCertificados = $db->prepare("SELECT ce.codigo as codigoCertificado, ce.idCertificadoEstado as estadoIdCertificado FROM `certificados` ce
+				$sqlCertificados = $db->prepare("SELECT ce.codigo as codigoCertificado, ce.idCertificadoEstado as estadoIdCertificado, correlativo FROM `certificados` ce
 				inner join matricula m on m.idCertificado = ce.id
-				where m.id=? ;");
+				inner join alumnos a on a.id = m.idAlumno
+				where m.id=? 
+				order by a.apellidos, a.nombres asc;");
 				if($sqlCertificados -> execute([
 					$cursosA['id'] //contiene idMatricula
 				])){
@@ -249,7 +251,7 @@ function finalizar($db){
 		) VALUES (
 		?,?,?,?
 		);
-		UPDATE `cursos` SET `finalizado` = 0 WHERE `cursos`.`id` = ?;
+		UPDATE `cursos` SET `finalizado` = 1 WHERE `cursos`.`id` = ?;
 		');
 	if($sql->execute([
 		$_POST['fecha'],$_POST['idCurso'],$_POST['codigo'],$_POST['tomo'],
@@ -269,29 +271,43 @@ function finalizar($db){
 					?,?,?,?,?,
 					?,?
 				);");
-				if($sqlCertificado->execute([
+				$sqlCertificado->execute([
 					$matriculados['id'],$_POST['idCurso'], $matriculados['idAlumno'],$_POST['claveCurso'],$indice,
 					$matriculados['tipoCertificado'],2
-				]))
+				]);
 				$indice++;
 			}
 			$sqlMatriculados->closeCursor();
 
-			$sobran = $_POST['cupos'] - ($indice-1);
-			for ($i=$indice+1; $i < $sobran ; $i++) {
-				$sqlSobrantes = $db->prepare("INSERT INTO `certificados`(
-					`idMatricula`, `idCurso`, `idAlumno`, `codigo`, `correlativo`, 
-					`impreso`, `idCertificadoEstado`)
+			$sobran = $_POST['vacantes'] - ($indice-1);
+			for ($i=$indice; $i <= $sobran ; $i++) {
+
+				$sqlMatricularCero = $db->prepare("INSERT INTO `matricula`(
+					`idCurso`, `idAlumno`, `fecha`, `idTipoMatricula`,`precio`,
+					`pago`,`debe`,`idEstadoCertificado`,`idCertificado`,`comoPago`,`cuotas`)
 				VALUES(
-					1,?,1,?,?,
-					1,1
-				);");
-				if($sqlSobrantes->execute([
-					$_POST['idCurso'],$_POST['claveCurso'],$indice
-				]))
-				$indice++;
+					?, 1, now(), 7,0,
+					0,0,1,1,1,1);");
+					$sqlMatricularCero->execute([$_POST['idCurso']]);
+					$idMatriculaCero = $db->lastInsertId();
+					$sqlMatricularCero->closeCursor();
+
+
+					$sqlSobrantes = $db->prepare("INSERT INTO `certificados`(
+						`idMatricula`, `idCurso`, `idAlumno`, `codigo`, `correlativo`, 
+						`impreso`, `idCertificadoEstado`)
+					VALUES(
+						?,?,1,?,?,
+						1,1
+					);
+					");
+					$sqlSobrantes->execute([
+						$idMatriculaCero,$_POST['idCurso'],$_POST['claveCurso'],$indice
+					]);
+					$indice++;
+					
+					$sqlSobrantes->closeCursor();
 			}
-			$sqlSobrantes->closeCursor();
 		}
 
 		echo $idResolucion;

@@ -3,6 +3,7 @@ include 'conectkarl.php';
 
 switch( $_POST['pedir']){
 	case 'listar': listar($db); break;
+	case 'listarPro': listarPro($db); break;
 	case 'add': agregar($db); break;
 	case 'update': actualizar($db); break;
 	case 'delete': borrar($db); break;
@@ -11,10 +12,38 @@ switch( $_POST['pedir']){
 function listar($db){
 	$filas = [];
 	$filtro = '';
-	if( isset($_POST['id']) ){ $filtro = 'and d.id = '.$_POST['id'];}
+	if( isset($_POST['id']) ){ $filtro = ' and c.id = '.$_POST['id'];}
 	if( isset($_POST['texto']) ){ $filtro .= ' and (nombre like "%'.$_POST['texto'].'%" )';}
 	//echo $filtro;
-	$sql = $db->query("SELECT * from prospecto_curso where activo = 1 order by nombre asc;");
+	$sql = $db->query("SELECT 
+	c.id, c.nombre, c.foto, c.inicio, c.meta,
+	pc.id as idProcurso, `tiempo`, `fecha`, `idResponsable`, `observacion`,
+	co.nombres
+	FROM cursos c
+	left join prospecto_curso pc on pc.idCurso = c.id
+	left join colaboradores co on co.id = pc.idResponsable
+	where c.activo = 1 {$filtro} 
+	order by inicio desc
+	;");
+	if($sql->execute()){
+		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$filas[]= $row;
+		}
+		echo json_encode($filas);
+	}
+}
+function listarPro($db){
+	$filas = [];
+	
+	$sql = $db->query("SELECT 
+	pc.id, pc.idCurso, `idResponsable`, `observacion`, pGeneral,
+	co.nombres, cu.nombre, cu.foto, cu.inicio, m.descripcion as modalidad
+	FROM prospecto_curso pc
+	inner join cursos cu on cu.id = pc.idCurso
+	left join modalidades m on m.id = cu.idModalidad
+	left join colaboradores co on co.id = pc.idResponsable
+	order by cu.nombre desc
+	;");
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
 			$filas[]= $row;
@@ -23,27 +52,28 @@ function listar($db){
 	}
 }
 function agregar($db){
-	$conv = json_decode($_POST['proCurso'], true);
 	
 	$sql = $db->prepare('INSERT INTO `prospecto_curso`(
-		`nombre`, `foto`) VALUES (
-		?,? );');
+		`idCurso` ) VALUES (
+		?); ');
 	if($sql->execute([
-		$conv['nombre'],$conv['foto']
+		$_POST['idCurso']
 	])){
 		echo $db->lastInsertId();
 	}else{
-		//echo $sql->debugDumpParams();
 		echo -1;
 	}
+	//echo $sql->debugDumpParams();
 }
 function actualizar($db){
 	$conv = json_decode($_POST['proCurso'], true);
 	
 	$sql = $db->prepare('UPDATE `prospecto_curso` set 
-		`nombre`=?, `foto`=? WHERE `id`= ? ;');
+		`tiempo`=?, `fecha`=?, `idResponsable`=?, `observacion`=?
+		WHERE `id`= ? ;');
 	if($sql->execute([
-		$conv['nombre'],$conv['foto'],$conv['id']
+		$conv['tiempo'],$conv['fecha'],$conv['idResponsable'],$conv['observacion'],
+		$conv['idProcurso'],
 	])){
 		//echo $sql->debugDumpParams();
 		echo 1;
@@ -52,10 +82,7 @@ function actualizar($db){
 	}
 }
 function borrar($db){
-	$ruta= dirname(__DIR__,1) . "/images/subidas/" .$_POST['archivo'];
-	unlink($ruta);
-
-	$sql = $db->prepare('UPDATE `prospecto_curso` set `activo` =0 WHERE `id`= ? ;');
+	$sql = $db->prepare('DELETE FROM `prospecto_curso` WHERE `id`= ? ;');
 	if($sql->execute([ $_POST['id'] ])){
 		echo 'ok';
 	}else{

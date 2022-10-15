@@ -51,6 +51,7 @@
 						<thead>
 							<th>N°</th>
 							<th>Nombre</th>
+							<th>Codigo</th>
 							<th>Programa</th>
 							<th>Evento</th>
 							<th>Año</th>
@@ -61,12 +62,13 @@
 						<tbody>
 							<tr v-for="(curso, index) in cursos">
 								<td>{{index+1}}</td>
-								<td><a class="text-decoration-none" :href="'cursoDetalle.php?id='+curso.id">{{curso.nombre}}</a></td>
+								<td class="text-capitalize"><a class="text-decoration-none" :href="'cursoDetalle.php?id='+curso.id">{{curso.nombre}}</a></td>
+								<td>{{curso.codigo}}</td>
 								<td>{{curso.desPrograma}}</td>
 								<td>{{curso.desEvento}}</td>
 								<td>{{curso.anio}}</td>
 								<td>{{fechaLatam(curso.inicio)}}</td>
-								<td>
+								<td  style='white-space: nowrap'>
 									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
 									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
@@ -81,6 +83,15 @@
 					<div class="card-body">
 
 					<p class="fw-bold">Ingreso nuevo registro</p>
+
+					<label for="">Foto</label>
+					<div v-show="curso.foto==''">
+						<input type="file" class="form-control" ref="archivoFile" id="txtArchivo">
+					</div>
+					<div v-show="curso.foto!=''">
+						<img :src="'./images/subidas/'+curso.foto" class="img-fluid">
+					</div>
+
 					<label for="">Año</label>
 					<input type="number" class="form-control" min="1900" max="2099" step="1" v-model="curso.anio" />
 					<label for="">Tipo de programa</label>
@@ -152,6 +163,8 @@
 					<select class="form-select" id="" v-model="curso.idDocenteReemplazo">
 						<option v-for="docente in docentes" :value="docente.id">{{docente.apellidos}} {{docente.nombres}}</option>
 					</select>
+					<label for="">Meta</label>
+					<input type="number" class="form-control" v-model="curso.meta">
 					<label for="">Temario (archivo)</label>
 					<input type="file" class="form-control" v-model="curso.temarioArchivo">
 					<label for="">Temario (Link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
@@ -246,6 +259,7 @@
 <?php pie(); ?>
 <script src="js/moment.min.js"></script>
 <script>
+	const rutaDocs = '/home/pfeuhnjs/public_html/WEBS/esderecho.pe/intranet/images/subidas/';
   const { createApp } = Vue
 
   createApp({
@@ -253,7 +267,7 @@
       return {
 				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false, texto:'', programaSearch:-1, eventoSearch:-1,anioSearch:'',
 				curso:{
-					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:''
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
 				},
 				puedeGuardar:false, correlativo:-1
       }
@@ -265,7 +279,7 @@
 		methods:{
 			limpiarPrincipal(){
 				this.curso = {
-					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:''
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
 				};
 			},
 			async pedirCursos(){
@@ -331,7 +345,9 @@
 				});
 				let resp = await respServ.text()
 				if(parseInt(resp) >=1){
-					this.cursos.push( {'id': 'resp', ...this.curso});
+					this.curso.id = resp;
+					//this.cursos.push( {'id': resp, ...this.curso});
+					this.verificarFoto()
 					this.curso=[];
 					this.limpiarPrincipal();
 					alert('Curso guardado exitosamente')
@@ -357,8 +373,59 @@
 				} */
 				this.actualizacion=true;
 			},
-			async actualizarCurso(){
+			subirNube(){
+				var that = this; let nombreSubida='';
+				let archivo = this.$refs.archivoFile.files[0];
 
+				let formData = new FormData();
+				formData.append('ruta', rutaDocs);
+				formData.append('archivo', archivo);
+
+				axios.post('./api/subirAdjunto.php', formData,{
+					headers: {
+						'Content-Type' : 'multipart/form-data'
+					}
+				})
+				.then( response => {
+					let nomArchivo = response.data;
+					console.log(nomArchivo)
+					if( nomArchivo =='Error subida' ){
+						this.curso.foto='';
+						console.log( 'err1' );
+					}else{ //subió bien
+						this.curso.foto = nomArchivo;
+						console.log( 'subio bien al indice con nombre: '+ nomArchivo );
+					}
+				})
+				.catch(function(ero){
+					console.log( 'err2' + ero );
+					return 'error 2';
+				})
+				.finally( ()=>{
+					this.updateSoloFoto();
+					
+				})
+				;
+			},
+			async updateSoloFoto(){
+				let data = new FormData();
+				data.append('pedir', 'updateSoloFoto')
+				data.append('id', this.curso.id)
+				data.append('foto', this.curso.foto)
+				let pedirServ = await fetch('./api/Curso.php',{
+					method:'POST', body:data
+				});
+				let diceServ = await pedirServ.text();
+				this.limpiarPrincipal();
+				console.log('diceServ', diceServ);
+			},
+			verificarFoto(){
+				if(document.getElementById("txtArchivo").files.length>0){//Hay un archivo
+					this.subirNube();
+				}
+			},
+			async actualizarCurso(){
+				
 				if(document.getElementById('checkAlumnos').checked){ this.curso.checkAlumnos = 1; }else{ this.curso.checkAlumnos =0;}
 				if(document.getElementById('checkAfianzamiento').checked){ this.curso.checkAfianzamiento = 1; }else{ this.curso.checkAfianzamiento =0;}
 				if(document.getElementById('checkAprobados').checked){ this.curso.checkAprobados = 1; }else{ this.curso.checkAprobados =0;}
@@ -370,12 +437,15 @@
 					method: 'POST', body:data
 				});
 				let resp = await respServ.text()
+				
 				if(parseInt(resp) ==1){
+					this.verificarFoto()
 					this.cursos[this.queIndex] = this.curso;
 					this.actualizacion=false;
-					this.limpiarPrincipal();
+					
 					alert('Curso actualizado exitosamente')
 				}
+				
 			},
 			async eliminarCurso(id, index){
 				if( confirm(`¿Desea eliminar el curso llamado ${this.cursos[index].nombre}?`) ){

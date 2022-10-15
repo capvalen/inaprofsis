@@ -11,6 +11,8 @@ switch( $_POST['pedir']){
 	case 'matriculados': matriculados($db); break;
 	case 'matricular': matricular($db); break;
 	case 'finalizar': finalizar($db); break;
+	case 'updateSoloFoto': updateSoloFoto($db); break;
+	case 'getTareas': getTareas($db); break;
 }
 
 function listar($db){
@@ -35,7 +37,7 @@ function listar($db){
 	inner join etapas et on et.id = c.idEtapa
 	inner join colaboradores resp1 on resp1.id = c.idResponsable1
 	inner join colaboradores resp2 on resp2.id = c.idResponsable2
-	where c.activo =1 {$filtro} order by c.nombre asc;");
+	where c.activo =1 {$filtro} order by c.id desc;");
 	
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
@@ -56,7 +58,8 @@ function agregar($db){
 		`temarioArchivo`, `idTipoCertificado`, `brochureLink`, `idEtapa`, `detalles`, 
 		`dataLink`, `vacantes`, `autorizacion`, `cambios`, `checkAlumnos`,
 		`checkAfianzamiento`, `checkAprobados`, `idResponsable1`, `idResponsable2`, `prospectoLink`,
-		`grupo`, `catalogoLink`, `videoLink`, `idEspecialidad`, `cupos`
+		`grupo`, `catalogoLink`, `videoLink`, `idEspecialidad`, `cupos`,
+		`foto`,`meta`
 		) VALUES (
 		?,?,?,?,?,
 		?,?,?,?,?,
@@ -65,7 +68,8 @@ function agregar($db){
 		?,?,?,?,?,
 		?,?,?,?,?,
 		?,?,?,?,?,
-		?,?,?,?,?
+		?,?,?,?,?,
+		?,?
 		);');
 	if($sql->execute([
 		$conv['anio'],$conv['idPrograma'],$conv['idEvento'],$conv['nombre'],$conv['codigo'],
@@ -75,9 +79,34 @@ function agregar($db){
 		$conv['temarioArchivo'],$conv['idTipoCertificado'],$conv['brochureLink'],$conv['idEtapa'],$conv['detalles'],
 		$conv['dataLink'],$conv['vacantes'],$conv['autorizacion'],$conv['cambios'],$conv['checkAlumnos'], 
 		$conv['checkAfianzamiento'],$conv['checkAprobados'],$conv['idResponsable1'],$conv['idResponsable2'],$conv['prospectoLink'], 
-		$conv['grupo'],$conv['catalogoLink'],$conv['videoLink'],$conv['idEspecialidad'],$conv['vacantes']
+		$conv['grupo'],$conv['catalogoLink'],$conv['videoLink'],$conv['idEspecialidad'],$conv['vacantes'],
+		$conv['foto'],$conv['meta']
 	])){
-		echo $db->lastInsertId();
+		$idCurso = $db->lastInsertId();
+
+		$sqlTareas = $db->query("INSERT INTO `actividades_tareas`(
+			`idCurso`, `idTarea` ) VALUES
+			({$idCurso}, 1 ),
+			({$idCurso}, 2 ),
+			({$idCurso}, 3 ),
+			({$idCurso}, 4 ),
+			({$idCurso}, 5 ),
+			({$idCurso}, 6 ),
+			({$idCurso}, 7 ),
+			({$idCurso}, 8 ),
+			({$idCurso}, 9 ),
+			({$idCurso}, 10 ),
+			({$idCurso}, 11 ),
+			({$idCurso}, 12 ),
+			({$idCurso}, 13 ),
+			({$idCurso}, 14 ),
+			({$idCurso}, 15 ),
+			({$idCurso}, 16 ),
+			({$idCurso}, 17 ),
+			({$idCurso}, 18 )
+			");
+			$sqlTareas->execute();
+		echo $idCurso;
 	}else{
 		echo -1;
 	}
@@ -93,7 +122,8 @@ function actualizar($db){
 		`temarioArchivo`=?, `idTipoCertificado`=?, `brochureLink`=?, `idEtapa`=?, `detalles`=?, 
 		`dataLink`=?, `vacantes`=?, `autorizacion`=?, `cambios`=?, `checkAlumnos`=?,
 		`checkAfianzamiento`=?, `checkAprobados`=?, `idResponsable1`=?, `idResponsable2`=?, `prospectoLink`=?,
-		`grupo`=?, `catalogoLink`=?, `videoLink`=? WHERE `id`= ? ;');
+		`grupo`=?, `catalogoLink`=?, `videoLink`=?,`foto`=?,`meta`=?
+		WHERE `id`= ? ;');
 	if($sql->execute([
 		$conv['anio'],$conv['idPrograma'],$conv['idEvento'],$conv['nombre'],$conv['codigo'],
 		$conv['idModalidad'],$conv['inicio'],$conv['fechasLink'],$conv['idHora'],$conv['idConvenio'],
@@ -102,13 +132,28 @@ function actualizar($db){
 		$conv['temarioArchivo'],$conv['idTipoCertificado'],$conv['brochureLink'],$conv['idEtapa'],$conv['detalles'],
 		$conv['dataLink'],$conv['vacantes'],$conv['autorizacion'],$conv['cambios'],$conv['checkAlumnos'], 
 		$conv['checkAfianzamiento'],$conv['checkAprobados'],$conv['idResponsable1'],$conv['idResponsable2'],$conv['prospectoLink'], 
-		$conv['grupo'],$conv['catalogoLink'],$conv['videoLink'], $conv['id']
+		$conv['grupo'],$conv['catalogoLink'],$conv['videoLink'],$conv['foto'],$conv['meta'],
+		$conv['id']
 	])){
 		echo 1;
 	}else{
 		echo -1;
 	}
-	echo $sql->debugDumpParams();
+	//echo $sql->debugDumpParams();
+}
+function updateSoloFoto($db){
+	$conv = $_POST;
+	
+	$sql = $db->prepare('UPDATE `cursos` set 
+		`foto`=? WHERE `id`= ? ;');
+	if($sql->execute([
+		$conv['foto'], $conv['id']
+	])){
+		echo 1;
+	}else{
+		echo -1;
+	}
+	//echo $sql->debugDumpParams();
 }
 function borrar($db){
 	
@@ -313,6 +358,21 @@ function finalizar($db){
 		echo $idResolucion;
 	}else{
 		echo -1;
+	}
+}
+
+function getTareas($db){
+	$filas = [];
+	
+	$sql = $db->prepare("SELECT act.*, t.tarea, a.actividad FROM `actividades_tareas` act
+	inner join tareas t on t.id = act.idTarea
+	inner join actividades a on a.id = t.idActividad
+	where idCurso = ?;");
+	if($sql->execute([ $_POST['id'] ])){
+		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$filas[]= $row;
+		}
+		echo json_encode($filas);
 	}
 }
 ?>

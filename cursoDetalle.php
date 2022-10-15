@@ -10,6 +10,8 @@
 		.text-naranja{color:#ff8f1b}
 		.text-ligero{color: #d9d9d9!important;}
 		.tdLargo{white-space: nowrap}
+		input[type='date']:in-range::-webkit-datetime-edit-year-field,input[type='date']:in-range::-webkit-datetime-edit-month-field,input[type='date']:in-range::-webkit-datetime-edit-day-field,input[type='date']:in-range::-webkit-datetime-edit-text{  color: transparent;}
+
 	</style>
 	<div class="container-fluid" id="app">
 		<div class="row">
@@ -179,10 +181,19 @@
 				</div>
 
 
-				<div class="card">
-					<div class="card-body">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" id="Matriculados-tab" data-bs-toggle="tab" data-bs-target="#Matriculados-tab-pane" type="button" role="tab" aria-controls="Matriculados-tab-pane" aria-selected="true"><i class="bi bi-people-fill"></i> Matriculados</button>
+					</li>
+					<li class="nav-item" role="presentation" >
+						<button class="nav-link" id="Tareas-tab" data-bs-toggle="tab" data-bs-target="#Tareas-tab-pane" type="button" role="tab" aria-controls="Tareas-tab-pane" aria-selected="false"><i class="bi bi-list-stars"></i> Tareas</button>
+					</li>
+				</ul>
+
+				<div class="tab-content">
+					<div class="tab-pane fade show active p-2" id="Matriculados-tab-pane" role="tabpanel" aria-labelledby="Matriculados-tab" tabindex="0">
 						<div class="d-flex justify-content-between">
-							<p>Lista de matriculados</p>
+							<h4 class="mt-4">Lista de matriculados</h4>
 							<div>
 								<button class="btn btn-sm btn-outline-primary mx-1" @click="abrirOff()" v-if="curso.vacantes>0 && curso.finalizado==0"><i class="bi bi-award"></i> Matricular alumno ({{curso.vacantes}} libre)</button>
 								<button class="btn btn-sm btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#modalFinalizar" v-if="curso.finalizado==0"><i class="bi bi-exclamation-square"></i> Finalizar curso</button>
@@ -261,6 +272,55 @@
 							</table>
 						</div>
 					</div>
+
+					<div class="tab-pane fade p-2" id="Tareas-tab-pane" role="tabpanel" aria-labelledby="Tareas-tab" tabindex="0">
+						<h4 class="mt-4">Lista de actividades</h4>
+						<button class="btn btn-outline-success"><i class="bi bi-list-stars"></i> Nueva actividad</button>
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>N°</th>
+									<th>Grupo</th>
+									<th>Tarea</th>
+									<th>Responsable</th>
+									<th>Fecha</th>
+									<th>Tiempo</th>
+									<th>Cumplido</th>
+									<th>Observación</th>
+
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="(tarea, index) in tareas">
+									<td>{{index+1}}</td>
+									<td>{{tarea.actividad}}</td>
+									<td>{{tarea.tarea}}</td>
+									<td>
+										<select class="form-select" v-model="tarea.idResponsable">
+											
+											<option v-for="colaborador in colaboradores" :value="colaborador.id">{{colaborador.nombres}}</option>
+										</select>
+									</td>
+									<td>
+										<input type="date" class="form-control" v-model="tarea.fecha">
+									</td>
+									<td>
+										<input type="text" class="form-control" v-model="tarea.tiempo">
+
+									</td>
+									<td>
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+										</div>
+									</td>
+									<td>
+										<input type="text" class="form-control" v-model="tarea.observacion">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
 				</div>
 
 			</div>
@@ -386,12 +446,13 @@
 				curso:{
 					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
 				},
-				postulante:{idTipoMatricula:1}, precioApagar:0, clientePaga:0, comoPaga:1, cuotas:1,tipoCertificado:1, finalizar:{fecha: moment().format('YYYY-MM-DD'),tomo:''}
+				postulante:{idTipoMatricula:1}, precioApagar:0, clientePaga:0, comoPaga:1, cuotas:1,tipoCertificado:1, finalizar:{fecha: moment().format('YYYY-MM-DD'),tomo:''}, tareas:[], colaboradores:[]
       }
     },
 		mounted(){
 			this.pedirCurso();
 			this.pedirDatos();
+			this.cargarTareas();
 			offMatricula = new bootstrap.Offcanvas(document.getElementById('offMatricula'))
 			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 				var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -408,6 +469,11 @@
 					method: 'POST', body:data
 				});
 				this.tipoMatricula = await respServ.json();
+
+				let respServColaboradores = await fetch('./api/Colaborador.php',{
+					method: 'POST', body:data
+				});
+				this.colaboradores = await respServColaboradores.json();
 				
 			},
 			pedirCurso(){
@@ -543,7 +609,15 @@
 			monedaLatam(monedita){
 				return parseFloat(monedita).toFixed(2);
 			},
-			
+			async cargarTareas(){
+				let data = new FormData();
+				data.append('pedir', 'getTareas')
+				data.append('id', '<?= $_GET['id']; ?>')
+				let respServ = await fetch('./api/Curso.php',{
+					method: 'POST', body:data
+				});
+				this.tareas = await respServ.json();
+			}
 		}
   }).mount('#app')
 </script>

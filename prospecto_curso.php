@@ -12,7 +12,7 @@
 		<div class="row">
 			<div class="col-12 col-md-7 col-lg-9">
 				<div class="row col px-5">
-					<h1>Prospectos - Cursos</h1>
+					<h1>Promocionar cursos</h1>
 					
 					<div class="row ">
 						<div class="col-12 col-md-6">
@@ -38,19 +38,36 @@
 					<table class="table table-hover">
 						<thead>
 							<th>N°</th>
+							<th></th>
 							<th>Nombre</th>
-							<th>Foto</th>
+							<th>F. Inicio</th>
+							<th>Plazo Tiempo</th>
+							<th>Plazo fecha</th>
+							<th>Responsable</th>
+							<th>Obs.</th>
 							
 							<th>@</th>
 						</thead>
 						<tbody>
 							<tr v-if="proCursos.length>0" v-for="(proCurso, index) in proCursos" :key="proCurso.id">
 								<td>{{index+1}}</td>
-								<td class="text-capitalize">{{proCurso.nombre}}</td>
-								<td><a :href="'./images/subidas/'+proCurso.foto" target="_blank">{{proCurso.foto}}</a></td>
 								<td>
-									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarProCurso(index)"><i class="bi bi-pencil-square"></i></button>
-									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarProCurso(proCurso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
+									<img v-if="proCurso.foto!=''" :src="'./images/subidas/'+proCurso.foto" width="50">
+								</td>
+								<td class="text-capitalize"><a class="text-decoration-none" :href="'interesados_curso.php?idCurso='+proCurso.id">{{proCurso.nombre}}</a></td>
+								<td >{{fechaLatam(proCurso.inicio)}}</td>
+								<td class="text-capitalize">{{proCurso.tiempo}}</td>
+								<td class="text-capitalize">{{proCurso.fecha}}</td>
+								<td class="text-capitalize">{{proCurso.nombres}}</td>
+								<td class="text-capitalize">{{proCurso.observacion}}</td>
+								
+								<td>
+									<button v-if="proCurso.idProcurso==null " type="button" class="btn btn-outline-warning btn-sm border-0" @click="habilitarProCurso(index)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Habilitar Prospecto"><i class="bi bi-cloud-arrow-up"></i></button>
+									<div v-else>
+										<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarProCurso(index)"><i class="bi bi-pencil-square"></i></button>
+										<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarProCurso(index)"><i class="bi bi-x"></i></button>
+									</div>
+								
 								</td>
 							</tr>
 							<tr v-else>
@@ -66,14 +83,26 @@
 					<div class="card-body">
 					<p class="fw-bold">Ingreso nuevo registro</p>
 					<label for="">Nombre</label>
-					<input type="text" class="form-control" v-model="proCurso.nombre">
+					<p class="text-capitalize mb-0">{{proCurso.nombre}}</p>
+					
 					<label for="">Foto</label>
-					<input type="file" class="form-control" ref="archivoFile" id="txtArchivo">
-					<div class="d-grid mt-2" v-if="!actualizacion">
-						<button class="btn btn-outline-primary" @click="agregarProCurso()"><i class="bi bi-cloud-plus"></i> Agregar proCurso</button>
+					<div class="mb-2" v-show="proCurso.foto!=''">
+						<img :src="'./images/subidas/'+proCurso.foto" class="img-fluid">
 					</div>
-					<div class="d-grid mt-2" v-else>
-						<button class="btn btn-outline-success" @click="actualizarProCurso(true)"><i class="bi bi-pencil-square"></i> Actualizar proCurso</button>
+					<label for="">Colaborador responsable:</label>
+					<select class="form-select" id="" v-model="proCurso.idResponsable">
+						<option v-for="colaborador in colaboradores" :value="colaborador.id">{{colaborador.nombres}}</option>
+					</select>
+					<label for="">Plazo tiempo <small>Ejm: 4 semanas</small></label>
+					<input type="text" class="form-control" v-model="proCurso.tiempo">
+					<label for="">Plazo fecha <small>Ejm: 31 de noviembre</small></label>
+					<input type="text" class="form-control" v-model="proCurso.fecha">
+					<label for="">Observación</label>
+					<input type="text" class="form-control" v-model="proCurso.observacion">
+					
+
+					<div class="d-grid mt-2" v-if="proCurso.idProcurso!=null">
+						<button class="btn btn-outline-success" @click="actualizarProCurso(true)"><i class="bi bi-pencil-square"></i> Actualizar Prospecto</button>
 					</div>
 					</div>
 				</div>
@@ -93,6 +122,7 @@
     data() {
       return {
 				proCursos:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
+				colaboradores:[],
 				proCurso :{
 					id:-1, nombre:'', foto:''
 				}
@@ -100,22 +130,48 @@
     },
 		mounted(){
 			this.pedirProCursos();
+			this.cargarDatos();
 		},
 		methods:{
+			async cargarDatos(){
+				let data = new FormData();
+				data.append('pedir', 'listar')
+				let respServColaboradores = await fetch('./api/Colaborador.php',{
+					method: 'POST', body:data
+				});
+				this.colaboradores = await respServColaboradores.json();
+				this.colaboradores.push({id:1, nombres: 'Ninguno', apellidos:''})
+			},
 			limpiarPrincipal(){
 				this.proCurso = {
 					id:-1, nombre:'', foto:''
 				}
-				this.$refs.archivoFile.value = '';
+				//this.$refs.archivoFile.value = '';
 			},
-			async pedirProCursos(){
-				let data = new FormData();
-				data.append('pedir', 'listar')
-				let respServ = await fetch('./api/ProCurso.php',{
-					method: 'POST', body:data
-				});
-				let resp = await respServ.json();
-				this.proCursos = resp;
+			pedirProCursos(){
+				try {
+					let data = new FormData();
+					data.append('pedir', 'listar')
+					fetch('./api/ProCurso.php',{
+						method: 'POST', body:data
+					})
+					.then( respServ =>{
+						respServ.json()
+						.then( (data)=>{
+							this.proCursos = data;
+							
+						}).then(()=>{
+							const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+							const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+						})
+					});
+					
+				} catch (error) {
+					
+				} finally{
+					
+				}
+				
 			},
 			agregarProCurso(){
 				if(document.getElementById("txtArchivo").files.length>0){//Hay un archivo
@@ -126,20 +182,7 @@
 					this.limpiarPrincipal();
 				}
 			},
-			async crearProCurso(){
-				let data = new FormData();
-				data.append('pedir', 'add')
-				data.append('proCurso', JSON.stringify(this.proCurso));
-				let respServ = await fetch('./api/ProCurso.php',{
-					method: 'POST', body:data
-				});
-				let resp = await respServ.text()
-				if(parseInt(resp) >=1){
-					this.proCurso.id=resp;
-					this.proCursos.push( {'id': 'resp', ...this.proCurso});
-					alert('ProCurso guardado exitosamente')
-				}
-			},
+		
 			editarProCurso(mIndex){
 				this.queIndex = mIndex;
 				this.proCurso = JSON.parse(JSON.stringify(this.proCursos[mIndex]));
@@ -161,18 +204,18 @@
 					
 				}
 			},
-			async eliminarProCurso(id, index){
-				if( confirm(`¿Desea eliminar el proCurso de la entidad ${this.proCursos[index].nombre}?`) ){
+			async eliminarProCurso(index){
+				if( confirm(`¿Desea eliminar el prospecto llamado: ${this.proCursos[index].nombre}?`) ){
 					let data = new FormData();
 					data.append('pedir', 'delete')
-					data.append('id', id)
-					data.append('archivo', this.proCursos[index].foto)
+					data.append('id', this.proCursos[index].idProcurso)
 					let respServ = await fetch('./api/ProCurso.php',{
 						method: 'POST', body:data
 					});
 					let resp = await respServ.text()
 					if(resp == 'ok'){
-						this.proCursos.splice(index,1);
+						//this.proCursos.splice(index,1);
+						this.pedirProCursos();
 					}
 				}
 			},
@@ -197,7 +240,7 @@
 						console.log( 'err1' );
 					}else{ //subió bien
 						this.proCurso.foto = nomArchivo;
-						this.actualizarProCurso(false);
+						this.actualizarProCurso(true);
 						console.log( 'subio bien al indice con nombre: '+ nomArchivo );
 					}
 				})
@@ -217,6 +260,23 @@
 				});
 				this.proCursos = await respServ.json();
 				
+			},
+			async habilitarProCurso(index){
+				if(confirm(`¿Deseas habilitar el prospecto para: ${this.proCursos[index].nombre}?`)){
+					let data = new FormData();
+					data.append('pedir', 'add');
+					data.append('idCurso', this.proCursos[index].id);
+					
+					let respServ = await fetch('./api/ProCurso.php',{
+						method: 'POST', body:data
+					});
+					let resp = await respServ.text()
+					if(parseInt(resp) >=1){
+						this.proCurso.idProcurso=resp;
+						alert('ProCurso creado exitosamente')
+						this.pedirProCursos();
+					}
+				}
 			},
 			fechaLatam(fechita){
 				if(fechita == '' || fechita == null){

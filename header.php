@@ -35,7 +35,7 @@ function menu(){ ?>
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+			<ul class="navbar-nav mb-2 mb-lg-0">
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						Interno
@@ -52,8 +52,19 @@ function menu(){ ?>
 						<li><a class="dropdown-item" href="oficios.php">Oficios</a></li>
 					</ul>
 				</li>
-				
 			</ul>
+
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle active" href="#" id="navbarVentas" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Ventas
+					</a>
+					<ul class="dropdown-menu" aria-labelledby="navbarVentas">
+						<li><a class="dropdown-item" href="prospecto_curso.php">Cursos de Prospectos </a></li>
+					</ul>
+				</li>
+			</ul>
+
 		</div>
 	</div>
 </nav>

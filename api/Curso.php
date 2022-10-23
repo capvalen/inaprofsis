@@ -12,7 +12,9 @@ switch( $_POST['pedir']){
 	case 'matricular': matricular($db); break;
 	case 'finalizar': finalizar($db); break;
 	case 'updateSoloFoto': updateSoloFoto($db); break;
+	case 'addTareas': addTareas($db); break;
 	case 'getTareas': getTareas($db); break;
+	case 'updateTareas': updateTareas($db); break;
 }
 
 function listar($db){
@@ -364,7 +366,7 @@ function finalizar($db){
 function getTareas($db){
 	$filas = [];
 	
-	$sql = $db->prepare("SELECT act.*, t.tarea, a.actividad FROM `actividades_tareas` act
+	$sql = $db->prepare("SELECT act.*, t.tarea, a.actividad, act.tarea as tarea2 FROM `actividades_tareas` act
 	inner join tareas t on t.id = act.idTarea
 	inner join actividades a on a.id = t.idActividad
 	where idCurso = ?;");
@@ -375,4 +377,36 @@ function getTareas($db){
 		echo json_encode($filas);
 	}
 }
+
+function updateTareas($db){
+	$conv = json_decode($_POST['tarea'], true);
+	
+	$sql = $db->prepare("UPDATE `actividades_tareas` SET
+	`tiempo`= ?, `idResponsable`=?,`cumplido`=?,`observacion`=?,
+	`fecha` = STR_TO_DATE(?, '%Y-%m-%d')
+	WHERE `id`=?;");
+	if($sql->execute([ 
+		$conv['tiempo'], $conv['idResponsable'], $conv['cumplido'], $conv['observacion'],
+		$conv['fecha'], $conv['id']
+	])){
+		echo 1;
+	}else{
+		echo 0;
+	}
+}
+function addTareas($db){
+	$sql = $db->prepare("INSERT INTO `actividades_tareas`(
+		`idCurso`, `idTarea`, `tarea` ) VALUES (
+		?, 19, ?
+		);");
+	if($sql->execute([ 
+		$_POST['idCurso'],$_POST['tarea']
+	])){
+		echo 1;
+	}else{
+		echo 0;
+	}
+	//echo $sql->debugDumpParams();
+}
+
 ?>

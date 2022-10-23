@@ -53,7 +53,7 @@
 								<td>{{index+1}}</td>
 								<td class="text-capitalize">
 									<span class="me-2" :class="{'text-ligero': alumno.idMorosidad==1, 'text-danger': alumno.idMorosidad==2, 'text-naranja': alumno.idMorosidad==3, 'text-warning': alumno.idMorosidad==4, 'text-success': alumno.idMorosidad==5 }"><i class="bi bi-circle-fill"></i></span> 
-									<a :href="'alumnoDetalle.php?id='+alumno.id">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
+									<a class="text-decoration-none" :href="'alumnoDetalle.php?id='+alumno.id">{{alumno.apellidos}} {{alumno.nombres}}</a></td>
 								<td>{{alumno.nomEspecialidad}}</td>
 								<td>{{fechaLatam(alumno.fechaNacimiento)}}</td>
 								<td>{{alumno.correo1}}</td>

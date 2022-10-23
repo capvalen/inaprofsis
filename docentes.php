@@ -18,7 +18,7 @@
 						<div class="col-12 col-md-6">
 							<label for=""><i class="bi bi-funnel"></i> Filtros</label>
 							<div class="input-group mb-3">
-								<input type="text" class="form-control" placeholder="Nombre, apellidos, código" autocomplete="off" v-model="texto">
+								<input type="text" class="form-control" placeholder="Nombres, Apellidos" autocomplete="off" v-model="texto">
 								
 							</div>
 						</div>
@@ -40,7 +40,7 @@
 						<thead>
 							<th>N°</th>
 							<th>Apellidos y nombres</th>
-							<th>Especialidad</th>
+							<th>Especialidades</th>
 							<th>F. Nacimiento</th>
 							<th>Correo</th>
 							<th>Celular</th>
@@ -50,7 +50,10 @@
 							<tr v-if="docentes.length>0" v-for="(docente, index) in docentes" :key="docente.id">
 								<td>{{index+1}}</td>
 								<td class="text-capitalize">{{docente.apellidos}} {{docente.nombres}}</td>
-								<td>{{docente.nomEspecialidad}}</td>
+								<td>
+									<p v-if="docente.idEspecialidad!=1"class="mb-0">{{docente.nomEspecialidad}}</p>
+									<p v-if="docente.idEspecialidad2!=1" class="mb-0">{{docente.nomEspecialidad2}}</p>
+								</td>
 								<td>{{fechaLatam(docente.fechaNacimiento)}}</td>
 								<td>{{docente.correo1}}</td>
 								<td>{{docente.celular1}}</td>
@@ -75,6 +78,10 @@
 					<select class="form-select" v-model="docente.idEspecialidad">
 						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
 					</select>
+					<label for="">Especialidad extra</label>
+					<select class="form-select" v-model="docente.idEspecialidad2">
+						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
+					</select>
 					<label for="">Nombres</label>
 					<input type="text" class="form-control"  v-model="docente.nombres">
 					<label for="">Apellidos</label>
@@ -97,6 +104,10 @@
 					<input type="text" class="form-control"  v-model="docente.registroConciliador2">
 					<label for="">N° Registro Capacitador</label>
 					<input type="text" class="form-control"  v-model="docente.registroCapacitador">
+					<label for="">Departamento</label>
+					<select class="form-select" v-model="docente.departamento">
+						<option v-for="departamento in departamentos" :value="departamento.idDepa">{{departamento.departamento}}</option>
+					</select>
 					<label for="">Dirección</label>
 					<input type="text" class="form-control"  v-model="docente.direccion">
 					<label for="">Lugar de trabajo</label>
@@ -132,8 +143,8 @@
 				docentes:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
 				docente :{
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
-				}
+					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', departamento:-1
+				}, departamentos:[]
       }
     },
 		mounted(){
@@ -144,7 +155,7 @@
 			limpiarPrincipal(){
 				this.docente = {
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', 
+					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', departamento:-1
 				}
 			},
 			async pedirDocentes(){
@@ -163,6 +174,12 @@
 					method: 'POST', body:data
 				});
 				this.especialidades = await respServ.json()
+
+				data.set('pedir', 'departamento');
+				let respServDepartamento = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:data
+				});
+				this.departamentos = await respServDepartamento.json()
 			},
 			async agregarDocente(){
 				let data = new FormData();

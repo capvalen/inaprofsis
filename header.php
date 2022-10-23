@@ -25,10 +25,10 @@ function pie(){ ?>
 
 <?php
 function menu(){ ?>
-<nav class="navbar navbar-dark bg-primary navbar-expand-lg">
+<nav class="navbar navbar-dark bg-morado navbar-expand-lg" style="background-color: #7933F9;">
 	<div class="container">
-		<a class="navbar-brand" href="#">
-      <img src="https://inaprof.com/wp-content/uploads/2020/05/inaprof_blanco_peque2.png" >
+		<a class="navbar-brand" href="principal.php">
+      <img src="https://esderecho.pe/wp-content/uploads/2022/06/esDerecho_transparente-300x66.png" >
     </a>
 		
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,12 @@ function menu(){ ?>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav mb-2 mb-lg-0">
+				<li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="principal.php"><i class="bi bi-house"></i> Principal</a>
+        </li>
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Interno
+					<i class="bi bi-speedometer2"></i> Interno
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<li><a class="dropdown-item" href="convenios.php">Convenios</a></li>
@@ -57,7 +60,7 @@ function menu(){ ?>
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle active" href="#" id="navbarVentas" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Ventas
+					<i class="bi bi-easel2"></i> Ventas
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="navbarVentas">
 						<li><a class="dropdown-item" href="prospecto_curso.php">Cursos de Prospectos </a></li>

@@ -114,7 +114,7 @@
 					</select>
 					<label for="">Fecha de inicio</label>
 					<input type="date" class="form-control" v-model="curso.inicio">
-					<label for="">Fechas de desarrollo (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<label for="">Fechas de desarrollo (link) <a :href="retornaLink(curso.fechasLink)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.fechasLink">
 					<label for="">Horas académidas</label>
 					<select class="form-select" id="" v-model="curso.idHora">
@@ -167,13 +167,13 @@
 					<input type="number" class="form-control" v-model="curso.meta">
 					<label for="">Temario (archivo)</label>
 					<input type="file" class="form-control" v-model="curso.temarioArchivo">
-					<label for="">Temario (Link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<label for="">Temario (Link) <a :href="retornaLink(curso.temarioLink)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.temarioLink">
 					<label for="">Tipo de certificado</label>
 					<select class="form-select" id="" v-model="curso.idTipoCertificado">
 						<option v-for="tCertificado in tipoCertificados" :value="tCertificado.id">{{tCertificado.descripcion}}</option>
 					</select>
-					<label for="">Brochure (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<label for="">Brochure (link) <a :href="retornaLink(curso.brochureLink)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.brochureLink">
 					<label for="">Etapa del curso</label>
 					<select class="form-select" id="" v-model="curso.idEtapa">
@@ -181,7 +181,7 @@
 					</select>
 					<label for="">Detalles</label>
 					<textarea class="form-control" rows="3" v-model="curso.detalles"></textarea>
-					<label for="">Data de alumnos (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<label for="">Data de alumnos (link) <a :href="retornaLink(curso.dataLink)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.dataLink">
 					<label for="">Vacantes disponibles</label>
 					<input type="text" class="form-control" v-model="curso.vacantes">
@@ -221,13 +221,13 @@
 					<select class="form-select" id="" v-model="curso.idResponsable2">
 						<option v-for="colaborador in colaboradores" :value="colaborador.id">{{colaborador.nombres}}</option>
 					</select>
-					<label for="">Prospecto (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<label for="">Prospecto (link) <a :href="retornaLink(curso.prospectoLink)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.prospectoLink">
 					<label for="">Grupo de difusión</label>
 					<input type="text" class="form-control" v-model="curso.grupo">
-					<label for="">Catálogo (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<label for="">Catálogo (link) <a :href="retornaLink(curso.catalogoLink)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.catalogoLink">
-					<label for="">Video (link) <a href="#!"><i class="bi bi-box-arrow-up-right"></i></a></label>
+					<label for="">Video (link) <a :href="retornaLink(curso.videoLink)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="curso.videoLink">
 					<div class="gap"><button class="btn btn-outline-primary my-2" @click="crearCodigo()"><i class="bi bi-upc-scan"></i> Generar código</button></div>
 					<label for="">Código</label>
@@ -535,6 +535,16 @@
 					case 11: return 'XI'; break;
 					case 12: return 'XII'; break;
 					case '': break;
+				}
+			},
+			retornaLink(link){
+				if(link ==''){ return '#!'}
+				else{
+					if( link.includes('http') ){
+						return link;
+					}else{
+						return 'https://'+link;
+					}
 				}
 			}
 		}

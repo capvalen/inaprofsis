@@ -275,7 +275,7 @@
 
 					<div class="tab-pane fade p-2" id="Tareas-tab-pane" role="tabpanel" aria-labelledby="Tareas-tab" tabindex="0">
 						<h4 class="mt-4">Lista de actividades</h4>
-						<button class="btn btn-outline-success"><i class="bi bi-list-stars"></i> Nueva actividad</button>
+						<button class="btn btn-outline-success" @click="addActividad()"><i class="bi bi-list-stars"></i> Nueva actividad</button>
 						<table class="table table-hover">
 							<thead>
 								<tr>
@@ -291,30 +291,36 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="(tarea, index) in tareas">
+								<tr v-for="(tarea, index) in tareas" :data-id="tarea.id">
 									<td>{{index+1}}</td>
-									<td>{{tarea.actividad}}</td>
-									<td>{{tarea.tarea}}</td>
 									<td>
-										<select class="form-select" v-model="tarea.idResponsable">
-											
+										<span >{{tarea.actividad}}</span>
+									</td>
+									<td  :class="{'text-decoration-line-through text-muted':tarea.cumplido==1}">
+										<span v-if="tarea.idTarea!=19">{{tarea.tarea}}</span>
+										<span v-else>{{tarea.tarea2}}</span>
+									</td>
+									<td>
+										<select class="form-select" v-model="tarea.idResponsable" @change="updateTareas(index)">
+											<option value="1">Ninguno<option>
 											<option v-for="colaborador in colaboradores" :value="colaborador.id">{{colaborador.nombres}}</option>
 										</select>
 									</td>
 									<td>
-										<input type="date" class="form-control" v-model="tarea.fecha">
+										<input type="date" class="form-control" v-model="tarea.fecha" @change="updateTareas(index)">
 									</td>
 									<td>
-										<input type="text" class="form-control" v-model="tarea.tiempo">
+										<input type="text" class="form-control" v-model="tarea.tiempo" @keypress.enter="updateTareas(index)">
 
 									</td>
 									<td>
 										<div class="form-check">
-											<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+											<input v-if="tarea.cumplido==1" class="form-check-input" type="checkbox" checked @click="tareas[index].cumplido=0;updateTareas(index)">
+											<input v-else class="form-check-input" type="checkbox" @click="tareas[index].cumplido=1;updateTareas(index)">
 										</div>
 									</td>
 									<td>
-										<input type="text" class="form-control" v-model="tarea.observacion">
+										<input type="text" class="form-control" v-model="tarea.observacion" @keypress.enter="updateTareas(index)" autocomplete="off">
 									</td>
 								</tr>
 							</tbody>
@@ -446,7 +452,7 @@
 				curso:{
 					anio: '<?= date('Y');?>', idPrograma:1, idEvento:1, nombre:'', codigo:'', idModalidad:1, inicio:'', fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'', idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:''
 				},
-				postulante:{idTipoMatricula:1}, precioApagar:0, clientePaga:0, comoPaga:1, cuotas:1,tipoCertificado:1, finalizar:{fecha: moment().format('YYYY-MM-DD'),tomo:''}, tareas:[], colaboradores:[]
+				postulante:{idTipoMatricula:1}, precioApagar:0, clientePaga:0, comoPaga:1, cuotas:1,tipoCertificado:1, finalizar:{fecha: moment().format('YYYY-MM-DD'),tomo:''}, tareas:[], colaboradores:[], activo:false
       }
     },
 		mounted(){
@@ -617,6 +623,33 @@
 					method: 'POST', body:data
 				});
 				this.tareas = await respServ.json();
+			},
+			async updateTareas(queIndex){
+				let data = new FormData();
+				data.append('pedir', 'updateTareas')
+				data.append('tarea', JSON.stringify(this.tareas[queIndex]))
+				let respServ = await fetch('./api/Curso.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text();
+				//console.log(resp);
+			},
+			async addActividad(){
+				if(tarea =prompt('Ingrese el nombre de la nueva tarea')){
+					if(tarea!=''){
+						let data = new FormData();
+						data.append('pedir', 'addTareas')
+						data.append('idCurso', '<?= $_GET['id']; ?>' )
+						data.append('tarea', tarea )
+						let respServ = await fetch('./api/Curso.php',{
+							method: 'POST', body:data
+						});
+						let resp = await respServ.text();
+						if(resp ==1){ this.cargarTareas()}else{
+							alert('Hubo un error guardando la tarea, inténtelo nuevamente')
+						}
+					}
+				}
 			}
 		}
   }).mount('#app')

@@ -79,7 +79,11 @@
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
-						...
+						<label for=""></label>
+						<select name="" id="">
+							<option value="1">No esta interesado</option>
+							<option value="1">No esta interesado</option>
+						</select>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
@@ -94,8 +98,8 @@
 <script src="js/moment.min.js"></script>
 <script>
 	var modalActividades='';
-	var dominio = 'localhost/inaprofsis/';
-	//var dominio = 'https://esderecho.pe/';
+	//var dominio = 'localhost/inaprofsis/';
+	var dominio = 'https://esderecho.pe/intranet/';
   const { createApp } = Vue
 
   createApp({

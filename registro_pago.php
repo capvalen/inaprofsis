@@ -149,9 +149,15 @@
 			cargarPreview(){
 				document.getElementById('imgPreview').src= URL.createObjectURL(document.getElementById('filePreview').files[0])
 			},
-			guardarInformacion(){
+			async guardarInformacion(){
 				if( confirm('Está a punto de guardar sus datos.\nEste proceso solo se puede hacer una vez. \n¿Está todo correcto?') ){
-
+					let datos = new FormData();
+				datos.append('pedir', 'add')
+				datos.append('id', atob('<?= $_GET['id'] ?>'))
+				let respServ = await fetch('./api/Pagos.php',{
+					method: 'POST', body:datos
+				});
+				let temp = await respServ.text();
 				}
 			}
 		}

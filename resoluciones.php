@@ -89,7 +89,7 @@
 					<input type="number" min=1 class="form-control">
 					<label for="">Resolucion</label>
 					<input type="text" class="form-control">
-					<label for="">Link a la DB</label>
+					<label for="">Link a la Base de datos <a :href="retornaLink('')" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control">
 					<label for="">Observaciones</label>
 					<textarea class="form-control" rows="3"></textarea>
@@ -229,6 +229,16 @@
 					return '';
 				}else{
 					return moment(fechita).format('DD/MM/YYYY')
+				}
+			},
+			retornaLink(link){
+				if(link ==''){ return '#!'}
+				else{
+					if( link.includes('http') ){
+						return link;
+					}else{
+						return 'https://'+link;
+					}
 				}
 			}
 		}

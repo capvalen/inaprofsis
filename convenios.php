@@ -22,10 +22,17 @@
 							</div>
 						</div>
 						<div class="col-10 col-md">
-						<label for=""> Año</label>
+							<label for=""> Año</label>
 							<div class="input-group mb-3">
 								<input type="text" class="form-control" placeholder="Año" autocomplete="off" v-model="anioSearch">
 							</div>
+						</div>
+						<div class="col-10 col-md">
+							<label for=""> Categoría</label>
+							<select class="form-select" id=""  v-model="idCategoria">
+								<option value="-1">Todos</option>
+								<option v-for="categoria in categorias" :value="categoria.id">{{categoria.descripcion}}</option>
+							</select>
 						</div>
 						<div class="col-2 col-md d-flex align-content-end align-content-md-center flex-wrap">
 							<button class="btn btn-outline-secondary" type="button" @click="buscarConvenios()" id="txtBuscar"><i class="bi bi-search"></i></button>
@@ -42,6 +49,7 @@
 							<th>Entidad</th>
 							<th>Representante</th>
 							<th>Fecha</th>
+							<th>Vence</th>
 							<th>Periodo</th>
 							<th>Celular</th>
 							<th>@</th>
@@ -52,6 +60,7 @@
 								<td>{{convenio.entidad}}</td>
 								<td>{{convenio.representante}}</td>
 								<td>{{convenio.fecha}}</td>
+								<td>{{convenio.fechaFin}}</td>
 								<td>{{convenio.periodo}}</td>
 								<td>{{convenio.celular}}</td>
 								<td>
@@ -75,6 +84,8 @@
 					<input type="text" class="form-control" v-model="convenio.representante">
 					<label for="">Fecha de suscripción</label>
 					<input type="date" class="form-control" v-model="convenio.fecha">
+					<label for="">Fecha de vencimiento</label>
+					<input type="date" class="form-control" v-model="convenio.fechaFin">
 					<label for="">Periodo de convenio</label >
 					<input type="text" class="form-control" v-model="convenio.periodo">
 					<label for="">Acuerdos del convenio</label>
@@ -85,7 +96,7 @@
 					<input type="text" class="form-control" v-model="convenio.telefono">
 					<label for="">Celular</label>
 					<input type="text" class="form-control" v-model="convenio.celular">
-					<label for="">Web</label>
+					<label for="">Web <a :href="retornaLink(convenio.web)" target="_blank" ><i class="bi bi-box-arrow-up-right"></i></a></label>
 					<input type="text" class="form-control" v-model="convenio.web">
 					<label for="">Categoría</label>
 					<select class="form-select" id=""  v-model="convenio.idCategoria">
@@ -115,10 +126,10 @@
   createApp({
     data() {
       return {
-        categorias:[], convenios:[], actualizacion:false, anioSearch:'', texto:'',
+        categorias:[], convenios:[], actualizacion:false, anioSearch:'', texto:'',idCategoria:-1,
 				convenio :{
 					entidad:'',representante:'',fecha:null,periodo:'',acuerdos:'',
-					autoridades:'',telefono:'',celular:'',web:'',idCategoria: 1,observaciones:''
+					autoridades:'',telefono:'',celular:'',web:'',idCategoria: 1,observaciones:'', fechaFin:null
 				}
       }
     },
@@ -208,18 +219,30 @@
 				}
 			},
 			async buscarConvenios(){
-				if(this.texto=='' && this.anioSearch=='' ){
+				if(this.texto=='' && this.anioSearch=='' && this.idCategoria==-1 ){
 					this.pedirConvenios();
 				}else{
 					let datos = new FormData();
 					datos.append('pedir', 'listar')
 					datos.append('texto', this.texto)
 					if(this.anioSearch!=''){ datos.append('anios', this.anioSearch) }
+					if(this.idCategoria!=-1){ datos.append('idCategoria', this.idCategoria) }
+
 					this.convenios = [];
 					let respServ = await fetch('./api/Convenio.php',{
 						method: 'POST', body:datos
 					});
 					this.convenios = await respServ.json();
+				}
+			},
+			retornaLink(link){
+				if(link ==''){ return '#!'}
+				else{
+					if( link.includes('http') ){
+						return link;
+					}else{
+						return 'https://'+link;
+					}
 				}
 			}
 		}

@@ -183,6 +183,7 @@
 				if(parseInt(resp) >=1){
 					this.oficios.push( {'id': 'resp', ...this.oficio});
 					this.limpiarPrincipal();
+					this.sePuedeGuardar=false;
 					alert('Oficio guardado exitosamente')
 				}
 			},
@@ -242,9 +243,9 @@
 				});
 				let correlativo = await respServ.text();
 				if(parseInt(correlativo)>0){
-					let letRama = this.ramas.find(x => x.id = this.oficio.idRama).abreviatura;
-					let letArea = this.areas.find(x => x.id = this.oficio.idArea).abreviatura;
-					this.oficio.codigo = ('000'+ correlativo).slice(-3)+ `-${moment(this.oficio.fecha).format('YYYY')}-${letRama}-${letArea}-INAPROF`;
+					let letRama = this.ramas.find(x => x.id == this.oficio.idRama).abreviatura;
+					let letArea = this.areas.find(x => x.id == this.oficio.idArea).abreviatura;
+					this.oficio.codigo = ('000'+ correlativo).slice(-3)+ `-${moment(this.oficio.fecha).format('YYYY')}-${letRama}-${letArea}-ESDERECHO`;
 					this.sePuedeGuardar=true;
 				}else{
 					this.sePuedeGuardar=false;

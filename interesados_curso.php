@@ -15,52 +15,69 @@
 					<h1>Interesados del curso: <span class="text-capitalize">{{curso.nombre}}</span></h1>
 					<p>Lista de interesados del curso</p>
 
-					<table class="table table-hover">
-						<thead>
-							<tr>
-								<th>N°</th>
-								<th>Nombres</th>
-								<th>DNI</th>
-								<th>Celular</th>
-								<th>Correo</th>
-								<th>Especialidad</th>
-								<th>Ciudad</th>
-								<th>Se entera</th>
-								<th>Llamada</th>
-								<th>Fecha llamada</th>
-								<th>A pagar (S/)</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="(interesado, index) in interesados">
-								<td>{{index+1}}</td>
-								<td class="text-capitalize">
-									<a href="#!" class="text-decoration-none" @click="abrirModalActividades"><i class="bi bi-list-check"></i> {{interesado.apellidos}} {{interesado.nombres}}</a>
-								</td>
-								<td>{{interesado.dni}}</td>
-								<td>{{interesado.celular}}</td>
-								<td>{{interesado.correo}}</td>
-								<td>{{interesado.especialidad}}</td>
-								<td>{{interesado.ciudad}}</td>
-								<td>{{interesado.lugar}}</td>
-								<td>
-									<span v-if="interesado.llamada==1">Sí</span>
-									<span v-else>No</span>
-								</td>
-								<td>
-									<span v-if="interesado.llamada==1">{{fechaLatamHora(interesado.dia+' '+interesado.hora)}}</span>
-								</td>
-								<td class="col-1">
-									<input type="number" class="form-control" :value="interesado.aPagar" @keypress.enter="guardarPago(interesado.idCursoInteresado)">
-								</td>
-								<td>
-									<button class="btn btn-outline-primary ms-1" @click="copiarLink(interesado.idCursoInteresado)"><i class="bi bi-pen"></i></button>
-									<button class="btn btn-outline-warning ms-1" @click="copiarLink(interesado.idCursoInteresado)"><i class="bi bi-clipboard2"></i></button>
-									<button v-if="interesado.celular!=''" @click="abrirWhatsapp(interesado.idCursoInteresado, interesado.celular)" class="btn btn-outline-success ms-1"><i class="bi bi-whatsapp"></i></button>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>N°</th>
+									<th>Nombres</th>
+									<th>DNI</th>
+									<th>Celular</th>
+									<th>Correo</th>
+									<th>Especialidad</th>
+									<th>Ciudad</th>
+									<th>Se entera</th>
+									<th>Llamada</th>
+									<th>Fecha llamada</th>
+									<th>¿Con Certifificado?</th>
+									<th>Total (S/)</th>
+									<th>Concepto</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="(interesado, index) in interesados" :data-id="interesado.id">
+									<td>{{index+1}}</td>
+									<td class="text-capitalize">
+										<a href="#!" class="text-decoration-none" @click="abrirModalActividades"><i class="bi bi-list-check"></i> {{interesado.apellidos}} {{interesado.nombres}}</a>
+									</td>
+									<td>{{interesado.dni}}</td>
+									<td>{{interesado.celular}}</td>
+									<td>{{interesado.correo}}</td>
+									<td>{{interesado.especialidad}}</td>
+									<td>{{interesado.ciudad}}</td>
+									<td>{{interesado.lugar}}</td>
+									<td>
+										<span v-if="interesado.llamada==1">Sí</span>
+										<span v-else>No</span>
+									</td>
+									<td>
+										<span v-if="interesado.llamada==1">{{fechaLatamHora(interesado.dia+' '+interesado.hora)}}</span>
+									</td>
+									<td>
+										<div class="form-check" >
+											<input class="form-check-input si" type="checkbox" v-model="interesado.conCertificado==1? true: false" v-if="interesado.conCertificado==1" value="true" @click="interesado.conCertificado=0; guardarPago(interesado.idCursoInteresado, index)" checked >
+											<input class="form-check-input no" type="checkbox" v-model="interesado.conCertificado==1? true: false" v-else value="false" @click="interesado.conCertificado=1; guardarPago(interesado.idCursoInteresado, index)" >
+											<label class="form-check-label" for="flexCheckDefault">
+												<span v-if="interesado.conCertificado==1">Si</span>
+												<span v-else>No</span>
+											</label>
+										</div>
+									</td>
+									<td class="col-1">
+										<input type="number" class="form-control" :value="interesado.aPagar" @keypress.enter="guardarPago(interesado.idCursoInteresado, index)">
+									</td>
+									<td>
+										<input type="text" v-model="interesado.concepto" class="form-control text-capitalize" @keypress.enter="guardarPago(interesado.idCursoInteresado, index)">
+									</td>
+									<td style="white-space: nowrap;">
+										<button class="btn btn-outline-primary ms-1" @click="copiarLink(interesado.idCursoInteresado)"><i class="bi bi-pen"></i></button>
+										<button class="btn btn-outline-warning ms-1" @click="copiarLink(interesado.idCursoInteresado)"><i class="bi bi-clipboard2"></i></button>
+										<button v-if="interesado.celular!=''" @click="abrirWhatsapp(interesado.idCursoInteresado, interesado.celular)" class="btn btn-outline-success ms-1"><i class="bi bi-whatsapp"></i></button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
 
 				
@@ -167,12 +184,13 @@
 				if(monedita==null){ return '-'; }
 				else{ return parseFloat(monedita).toFixed(2); }
 			},
-			async guardarPago(idCursoInteresado){
-				let cuanto = event.target.value;
+			async guardarPago(idCursoInteresado, index){
 				let data = new FormData();
 				data.append('pedir', 'updatePago')
 				data.append('id', idCursoInteresado)
-				data.append('aPagar', cuanto )
+				data.append('aPagar', this.interesados[index].aPagar )
+				data.append('concepto', this.interesados[index].concepto )
+				data.append('conCertificado', this.interesados[index].conCertificado )
 				let respServColaboradores = await fetch('./api/Interesados.php',{
 					method: 'POST', body:data
 				});
@@ -182,6 +200,10 @@
 			},
 			abrirModalActividades(){
 				modalActividades.show()
+			},
+			esCheck(caso){
+				if(caso =='0'){ return false;}
+				else{ return true;}
 			}
 		}
   }).mount('#app')

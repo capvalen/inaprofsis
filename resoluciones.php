@@ -25,19 +25,36 @@
 							<th>N°</th>
 							<th>Curso</th>
 							<th>Código</th>
-							<th>Fecha</th>
+							<th>Fecha Res.</th>
+							<th>Evento</th>
+							<th>Especialidad</th>
+							<th>Fecha Inicio</th>
+							<th>Docentes</th>
 							<th>Tomo</th>
 							<th>Documento</th>
+							<th>Horas</th>
+							<th>Convenio</th>
+							<th>Data</th>
 							<th>@</th>
 						</thead>
 						<tbody>
 							<tr v-for="(resolucion, index) in resoluciones">
 								<td>{{index+1}}</td>
-								<td>{{resolucion.nomCurso}}</td>
+								<td class="text-capitalize"><a class="text-decoration-none" :href="'./cursoDetalle.php?id='+resolucion.idCurso">{{resolucion.nomCurso}}</a></td>
 								<td>{{resolucion.id}}{{resolucion.codigo}}</td>
 								<td>{{fechaLatam(resolucion.fecha)}}</td>
+								<td>{{resolucion.nomEvento}}</td>
+								<td>{{resolucion.nomEspecialidad}}</td>
+								<td>{{fechaLatam(resolucion.inicio)}}</td>
+								<td>
+									<p class="mb-0" v-if="resolucion.idDocente!=1">{{resolucion.nomDocente1}}</p>
+									<p class="mb-0" v-if="resolucion.idDocenteReemplazo!=1">{{resolucion.nomDocente2}}</p>
+								</td>
 								<td>{{resolucion.tomo}}</td>
 								<td>{{resolucion.documento}}</td>
+								<td>{{resolucion.horas}}</td>
+								<td>{{resolucion.entidad}}</td>
+								<td><a :href="resolucion.dataLink" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></td>
 								<td>
 									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarResolucion(index)"><i class="bi bi-pencil-square"></i></button>
 									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarResolucion(resolucion.id, index)"><i class="bi bi-x-circle-fill"></i></button>
@@ -48,7 +65,7 @@
 				</div>
 
 			</div>
-			<div class="col-12 col-md-5 col-lg-3 my-3">
+			<div class="col-12 col-md-5 col-lg-3 my-3" v-show="false">
 				<div class="card">
 					<div class="card-body">
 

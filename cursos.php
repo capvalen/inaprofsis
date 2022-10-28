@@ -47,34 +47,38 @@
 				</div>
 				<div class="table-responsive-md">
 					<p>Listado de cursos:</p>
-					<table class="table table-hover">
-						<thead>
-							<th>N°</th>
-							<th>Nombre</th>
-							<th>Codigo</th>
-							<th>Programa</th>
-							<th>Evento</th>
-							<th>Año</th>
-							<th>Fecha</th>
-							<th>@</th>
-					
-						</thead>
-						<tbody>
-							<tr v-for="(curso, index) in cursos">
-								<td>{{index+1}}</td>
-								<td class="text-capitalize"><a class="text-decoration-none" :href="'cursoDetalle.php?id='+curso.id">{{curso.nombre}}</a></td>
-								<td>{{curso.codigo}}</td>
-								<td>{{curso.desPrograma}}</td>
-								<td>{{curso.desEvento}}</td>
-								<td>{{curso.anio}}</td>
-								<td>{{fechaLatam(curso.inicio)}}</td>
-								<td  style='white-space: nowrap'>
-									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
-									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead>
+								<th>N°</th>
+								<th>Nombre</th>
+								<th>Codigo</th>
+								<th>Modalidad</th>
+								<th>Programa</th>
+								<th>Evento</th>
+								<th>Año</th>
+								<th>Fecha</th>
+								<th>@</th>
+						
+							</thead>
+							<tbody>
+								<tr v-for="(curso, index) in cursos">
+									<td>{{index+1}}</td>
+									<td class="text-capitalize"><a class="text-decoration-none" :href="'cursoDetalle.php?id='+curso.id">{{curso.nombre}}</a></td>
+									<td>{{curso.codigo}}</td>
+									<td>{{curso.desModalidad}}</td>
+									<td>{{curso.desPrograma}}</td>
+									<td>{{curso.desEvento}}</td>
+									<td>{{curso.anio}}</td>
+									<td>{{fechaLatam(curso.inicio)}}</td>
+									<td  style='white-space: nowrap'>
+										<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
+										<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
 
 			</div>
@@ -98,13 +102,13 @@
 					<select class="form-select" v-model="curso.idPrograma">
 						<option v-for="programa in programas" :value="programa.id">{{programa.descripcion}}</option>
 					</select>
-					<label for="">Especialidad</label>
-					<select class="form-select" id="" v-model="curso.idEspecialidad">
-						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
-					</select>
 					<label for="">Tipo de evento</label>
 					<select class="form-select" id="" v-model="curso.idEvento">
 						<option v-for="evento in eventos" :value="evento.id">{{evento.descripcion}}</option>
+					</select>
+					<label for="">Especialidad</label>
+					<select class="form-select" id="" v-model="curso.idEspecialidad">
+						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
 					</select>
 					<label for="">Nombre de curso</label>
 					<input type="text" class="form-control" v-model="curso.nombre">
@@ -153,6 +157,10 @@
 						<div class="col">
 							<label for="">Especial</label>
 							<input type="number" class="form-control" v-model="curso.pEspecial">
+						</div>
+						<div class="col">
+							<label for="">Certificación</label>
+							<input type="number" class="form-control" v-model="curso.pCertificado">
 						</div>
 					</div>
 					<label for="">Docente original</label>
@@ -267,7 +275,7 @@
       return {
 				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false, texto:'', programaSearch:-1, eventoSearch:-1,anioSearch:'',
 				curso:{
-					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, pCertificado:30, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
 				},
 				puedeGuardar:false, correlativo:-1
       }
@@ -279,7 +287,7 @@
 		methods:{
 			limpiarPrincipal(){
 				this.curso = {
-					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0,pCertificado:30, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
 				};
 			},
 			async pedirCursos(){
@@ -350,6 +358,7 @@
 					this.verificarFoto()
 					this.curso=[];
 					this.limpiarPrincipal();
+					this.pedirCursos();
 					alert('Curso guardado exitosamente')
 				}
 			},

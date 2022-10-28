@@ -37,13 +37,13 @@
 						</select>
 						<div v-if="interesado.index>-1" class="mt-3 p-3" id="divFormulario">
 							<h5>Sus datos personales</h5>
+							<label for="">D.N.I. <span class="text-danger">*</span></label>
+							<p class="mb-0"><small>Tendremos en cuenta para el acceso a tu aula virtual</small></p>
+							<input type="text" class="form-control" id="txtDNI" v-model="interesado.dni" @change="buscarPorDNI()">
 							<label for="">Nombres <span class="text-danger">*</span></label>
 							<input type="text" class="form-control" v-model="interesado.nombres">
 							<label for="">Apellidos <span class="text-danger">*</span></label>
 							<input type="text" class="form-control" v-model="interesado.apellidos">
-							<label for="">D.N.I. <span class="text-danger">*</span></label>
-							<p class="mb-0"><small>Tendremos en cuenta para el acceso a tu aula virtual</small></p>
-							<input type="text" class="form-control" v-model="interesado.dni">
 							<label for="">N° Celular (Whatsapp) <span class="text-danger">*</span></label>
 							<input type="text" class="form-control" v-model="interesado.celular">
 							<label for="">Correo electrónico <span class="text-danger">*</span></label>
@@ -53,7 +53,7 @@
 							<input type="text" class="form-control" v-model="interesado.colegio">
 							<label for="">Su especialidad </label>
 							<input type="text" class="form-control" v-model="interesado.especialidad">
-							<label for="">Su ciudad </label>
+							<label for="">Su ciudad <span class="text-danger">*</span></label>
 							<input type="text" class="form-control" v-model="interesado.ciudad">
 							<label for="">¿Cómo se enteró del evento?</label>
 							<select class="form-select" id="" v-model="interesado.lugar">
@@ -135,7 +135,7 @@
 				console.log('que foto', this.proCursos[index].foto);
 			},
 			async guardarDatos(){
-				if(this.interesado.nombres=='' || this.interesado.apelldios=='' || this.interesado.dni=='' ){
+				if(this.interesado.nombres=='' || this.interesado.apelldios=='' || this.interesado.dni=='' || this.interesado.ciudad=='' ){
 					alert('Debe rellenar todos los campos indicados')
 				}else{
 					let data = new FormData();
@@ -149,6 +149,11 @@
 						alert('Informe guardado exitosamente')
 						location.reload();
 					}
+				}
+			},
+			buscarPorDNI(){
+				if(this.interesado.dni.length!=8){
+					/* document.getElementById('txtDNI'). */
 				}
 			},
 			fechaLatam(fechita){

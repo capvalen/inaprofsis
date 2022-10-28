@@ -29,6 +29,14 @@
 								<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
 							</select>
 						</div>
+						<div class="col-10 col-md">
+							<label for="">Departamento</label>
+							<select class="form-select" v-model="departamentoSearch">
+								<option value="-1">Todos</option>
+								<option v-for="departamento in departamentos" :value="departamento.idDepa">{{departamento.departamento}}</option>
+							</select>
+						</div>
+						
 						<div class="col-2 col-md d-flex align-content-end align-content-md-center flex-wrap">
 							<button class="btn btn-outline-secondary" type="button" @click="buscarDocente()" id="txtBuscar"><i class="bi bi-search"></i></button>
 						</div>
@@ -58,6 +66,7 @@
 								<td>{{docente.correo1}}</td>
 								<td>{{docente.celular1}}</td>
 								<td>
+									<button type="button" class="btn btn-outline-info btn-sm border-0" @click="cuentasDocente(index)"><i class="bi bi-coin"></i></button>
 									<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarDocente(index)"><i class="bi bi-pencil-square"></i></button>
 									<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarDocente(docente.id, index)"><i class="bi bi-x-circle-fill"></i></button>
 								</td>
@@ -105,8 +114,16 @@
 					<label for="">N° Registro Capacitador</label>
 					<input type="text" class="form-control"  v-model="docente.registroCapacitador">
 					<label for="">Departamento</label>
-					<select class="form-select" v-model="docente.departamento">
+					<select class="form-select" v-model="docente.idDepartamento" @change="cambioDepa($event)">
 						<option v-for="departamento in departamentos" :value="departamento.idDepa">{{departamento.departamento}}</option>
+					</select>
+					<label for="">Provincia</label>
+					<select class="form-select" v-model="docente.idProvincia" @change="cambioProvi($event)">
+						<option v-for="provincia in provincias"  :value="provincia.idProv">{{provincia.provincia}}</option>
+					</select>
+					<label for="">Distrito</label>
+					<select class="form-select" v-model="docente.idDistrito">
+						<option v-for="distrito in distritos"  :value="distrito.idDist">{{distrito.distrito}}</option>
 					</select>
 					<label for="">Dirección</label>
 					<input type="text" class="form-control"  v-model="docente.direccion">
@@ -130,24 +147,70 @@
 			</div>
 
 		</div>
+
+		<!-- Modal para cuentas docentes-->
+		<div class="modal fade" id="modalCuentas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Cuentas del docente: {{docente.apellidos}} {{docente.nombres}}</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<button v-show="!crearCuenta" @click="crearCuenta=!crearCuenta" class="btn btn-outline-success"><i class="bi bi-coin"></i> Agregar cuenta</button>
+						<div v-show="crearCuenta">
+							<div class="card">
+								<div class="card-body">
+									<label for="">Banco <span class="text-danger">*</span></label>
+									<input type="text" class="form-control" v-model="cuentaNueva.descripcion">
+									<label for="">N° Cuenta <span class="text-danger">*</span></label>
+									<input type="text" class="form-control" v-model="cuentaNueva.cuenta">
+									<label for="">A nombre de:</label>
+									<input type="text" class="form-control" v-model="cuentaNueva.nombre">
+								</div>
+								<button @click="verificarCuenta()" class="btn btn-outline-primary m-2"> <i class="bi bi-clipboard-plus"></i> Agregar nueva cuenta</button>
+							</div>
+						</div>
+						<div v-show="!crearCuenta">
+							<p>Las cuentas del docente </p>
+							<ol class="list-group">
+								<li v-for="cuenta in cuentas" class="list-group-item">
+								<div class="ms-2 me-auto">
+									<div class="d-flex w-100 justify-content-between">
+										<span class="fw-bold text-capitalize">{{cuenta.descripcion}}</span>
+										<span style="cursor:pointer" @click="eliminarCuenta(cuenta.id)" class="badge bg-danger rounded-pill"><i class="bi bi-x-lg"></i></span>
+									</div>
+									<p class="mb-0">{{cuenta.cuenta}}</p>
+									<small class="mb-0 text-capitalize">A nombre: {{cuenta.nombre}}</small>
+								</div>
+								</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 <?php pie(); ?>
 <script src="js/moment.min.js"></script>
 <script>
+	var modalCuentas;
   const { createApp } = Vue
 
   createApp({
     data() {
       return {
-				docentes:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
+				docentes:[], especialidades:[], actualizacion:false, especialidadSearch:-1,departamentoSearch:-1, texto:'',
 				docente :{
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', departamento:-1
-				}, departamentos:[]
+					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', idDepartamento:-1, idProvincia: null,idDistrito:null
+				}, departamentos:[], provincias:[], distritos:[], cuentas:[], idDocenteGlobal:null,
+				cuentaNueva:{ descripcion:'', cuenta:'', nombre:''}, crearCuenta:false, indexGlobal:null
       }
     },
 		mounted(){
+			modalCuentas = new bootstrap.Modal(document.getElementById('modalCuentas'));
 			this.pedirDocentes();
 			this.cargarDatos();
 		},
@@ -155,7 +218,7 @@
 			limpiarPrincipal(){
 				this.docente = {
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', departamento:-1
+					nombres:'', apellidos:'', dni:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', registroConciliador1:'', registroConciliador2:'', registroCapacitador:'', direccion:'', lugarTrabajo:'', hijos:'', particularidades:'', hojaVida:'', idDepartamento:-1, idProvincia: null,idDistrito:null
 				}
 			},
 			async pedirDocentes(){
@@ -234,6 +297,7 @@
 				datos.append('pedir', 'listar')
 				datos.append('texto', this.texto)
 				if(this.especialidadSearch>0){ datos.append('idEspecialidad', this.especialidadSearch); }				
+				if(this.departamentoSearch>0){ datos.append('idDepartamento', this.departamentoSearch); }				
 				this.docentes = [];
 				let respServ = await fetch('./api/Docente.php',{
 					method: 'POST', body:datos
@@ -247,7 +311,82 @@
 				}else{
 					return moment(fechita).format('DD/MM/YYYY')
 				}
+			},
+			async cambioDepa(e){
+				this.docente.provincia=null
+				this.docente.distrito=null
+				//console.log(e.target.value);
+				let datos =  new FormData();
+				datos.append('pedir', 'provincia')
+				datos.append('idDepartamento', e.target.value)
+				let respServ = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:datos
+				});
+				this.provincias = await respServ.json();
+			},
+			async cambioProvi(e){
+				this.docente.distrito=null
+				//console.log(e.target.value);
+				let datos =  new FormData();
+				datos.append('pedir', 'distrito')
+				datos.append('idProvincia', e.target.value)
+				let respServ = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:datos
+				});
+				this.distritos = await respServ.json();
+			},
+			async cuentasDocente(index){
+				this.cuentas=[];
+				this.indexGlobal = index;
+				this.idDocenteGlobal = this.docentes[index].id;
+				this.docente.nombres = this.docentes[index].nombres;
+				this.docente.apellidos = this.docentes[index].apellidos;
+				let datos =  new FormData();
+				datos.append('pedir', 'listarCuentas')
+				datos.append('idDocente', this.idDocenteGlobal)
+				let respServ = await fetch('./api/Docente.php',{
+					method: 'POST', body:datos
+				});
+				this.cuentas = await respServ.json();
+				this.crearCuenta=false;
+				modalCuentas.show();
+			},
+			async verificarCuenta(){
+				if(this.cuentaNueva.descripcion=='' || this.cuentaNueva.cuenta==''){
+					alert('Faltan rellenar datos')
+				}else{
+					let datos =  new FormData();
+					datos.append('pedir', 'agregarCuentas')
+					datos.append('idDocente', this.idDocenteGlobal)
+					datos.append('descripcion', this.cuentaNueva.descripcion)
+					datos.append('cuenta', this.cuentaNueva.cuenta)
+					datos.append('nombre', this.cuentaNueva.nombre)
+					let respServ = await fetch('./api/Docente.php',{
+						method: 'POST', body:datos
+					});
+					let temp = await respServ.text();
+					if(temp=='ok'){
+						this.cuentas.push({
+							'descripcion': this.cuentaNueva.descripcion,
+							'cuenta': this.cuentaNueva.cuenta,
+							'nombre': this.cuentaNueva.nombre
+						})
+					}
+					this.crearCuenta=false;
+				}
+			},
+			async eliminarCuenta(id){
+				let datos =  new FormData();
+					datos.append('pedir', 'eliminarCuentas')
+					datos.append('id', id)
+					let respServ = await fetch('./api/Docente.php',{
+						method: 'POST', body:datos
+					});
+					let temp = await respServ.text();
+					this.cuentasDocente(this.indexGlobal);
+					this.crearCuenta=false;
 			}
+			
 		}
   }).mount('#app')
 </script>

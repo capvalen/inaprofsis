@@ -20,6 +20,7 @@
 		}
 		#divFormulario label{ margin-top: 1rem;}
 		#divDerecho label{ margin-top: 1rem;}
+		.form-check-label{margin-top: 0!important; font-weight: normal;}
 
 		label{font-weight: bold;}
 	</style>
@@ -33,7 +34,31 @@
 				<p>Por favor rellene y confirme sus datos</p>
 				<div class="card">
 					<div class="card-body">
-						<h4>Datos pre-guardados</h4>
+						<div class="w-75 mx-auto">
+							<img :src="dominio+'images/subidas/'+interesado.foto" class="img-fluid" alt="">
+						</div>
+						<div class="row row-cols-2">
+							<div class="col">
+								<label for="">Curso: </label>
+								<p class="text-capitalize">{{interesado.nombre}}</p>
+							</div>
+							<div class="col">
+								<label for="">Concepto</label>
+								<p class="text-capitalize">{{interesado.concepto==''? '-': interesado.concepto}}</p>
+							</div>
+							<div class="col">
+								<label for="fs-3">Total a pagar:</label>
+							</div>
+							<div class="col">
+								<p class="fs-3">S/ {{monedaLatam(totalaPagar(interesado.aPagar, interesado.conCertificado))}}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card mt-2">
+					<div class="card-body">
+						<h4>Datos personales</h4>
 						<label for="">Nombres y apellidos</label>
 						<p class="text-capitalize">{{interesado.apellidos}} {{interesado.nombres}}</p>
 						<label for="">DNI</label>
@@ -42,28 +67,30 @@
 						<p>{{interesado.correo}}</p>
 						<label for="">Celular 1</label>
 						<p>{{interesado.celular}}</p>
-						<label for="">Monto a pagar </label>
-						<p>S/ {{monedaLatam(interesado.aPagar)}}</p>
-						<label for="">Curso: </label>
-						<p>{{interesado.nombre}}</p>
-						<img :src="dominio+'images/subidas/'+interesado.foto" class="img-fluid" alt="">
+						
+						
 
 					</div>
 				</div>		
+
+					
 			</div>
 
 			<div class="col-12 col-md-6 p-3" id="divDerecho">
 				<p>Los siguientes campos deben ser rellenados</p>
-				<div class="card">
+				<div class="card mt-2">
+						<div class="card-body">
+							<h4>Actualizacion campos personales</h4>
+							<label for="">N° Whatsapp extra <span class="text-danger">*</span></label>
+							<input type="text" class="form-control" autocomplete="off">
+							<label for="">Correo electrónico emergencia <span class="text-danger">*</span></label>
+							<input type="text" class="form-control" autocomplete="off">
+							<label for="">Fecha de nacimiento <span class="text-danger">*</span></label>
+							<input type="date" class="form-control" autocomplete="off">
+						</div>
+					</div>
+				<div class="card mt-2">
 					<div class="card-body">
-						<h4>Actualizacion campos personales</h4>
-						<label for="">N° Whatsapp extra <span class="text-danger">*</span></label>
-						<input type="text" class="form-control">
-						<label for="">Correo electrónico emergencia <span class="text-danger">*</span></label>
-						<input type="text" class="form-control">
-						<label for="">Fecha de nacimiento <span class="text-danger">*</span></label>
-						<input type="date" class="form-control">
-						<hr>
 						<h4>Pago</h4>
 						<label for="">Entidad financiera <span class="text-danger">*</span></label>
 						<select class="form-select" id="">
@@ -86,12 +113,63 @@
 						</div>
 						<label for="">Observaciones y/o apuntes extras<span class="text-muted">(Opcional)</span></label>
 						<input type="text" class="form-control">
-						<div class="d-grid">
-							<button class="btn btn-outline-secondary mt-2 btn-lg" @click="guardarInformacion"><i class="bi bi-upload"></i> Enviar datos</button>
-						</div>
+						
 
 					</div>
-				</div>		
+				</div>
+				<div class="card mt-2">
+					<div class="card-body">
+						<h4>Delivery</h4>
+						<div v-if="interesado.conCertificado==1">
+							<p>Indique los datos para la entrega de su certificado</p>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="rdbDelivery" id="tienda" value="0" v-model="interesado.delivery" checked>
+								<label class="form-check-label" for="tienda"> Recojo en el local </label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="rdbDelivery" id="delivery" value="1" v-model="interesado.delivery" >
+								<label class="form-check-label" for="delivery"> Entrega por courier - agencia </label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="rdbDelivery" id="virtual" value="2" v-model="interesado.delivery" >
+								<label class="form-check-label" for="virtual"> Certificado Virtual </label>
+							</div>
+							<div v-if="interesado.delivery==1">
+								
+								<label for="">Agencia <span class="text-danger">*</span></label>
+								<select class="form-select" id="sltAgencia">
+									<option value="1">Ninguno</option>
+									<option value="2">SHALOM (Recojo en agencia)</option>
+									<option value="3">OLVA COURIER (Recojo en agencia)</option>
+									<option value="4">OLVA COURIER (Entrega a domicilio)</option>
+								</select>
+								<label for="">Departamento <span class="text-danger">*</span></label>
+								<select class="form-select" id="sltDepartamentos" @change="cambiarDepartamento()" v-model="interesado.departamento">
+									<option v-for="departamento in departamentos" :value="departamento.idDepa">{{departamento.departamento}}</option>
+								</select>
+								<label for="">Provincia <span class="text-danger">*</span></label>
+								<select class="form-select" id="sltProvincias" @change="cambiarProvincia()" v-model="interesado.provincia">
+									<option v-for="provincia in provincias" :value="provincia.idProv">{{provincia.provincia}}</option>
+								</select>
+								<label for="">Distrito <span class="text-danger">*</span></label>
+								<select class="form-select" id="sltDistritos" v-model="interesado.distrito">
+									<option v-for="distrito in distritos" :value="distrito.idDist">{{distrito.distrito}}</option>
+								</select>
+								<label for="">Dirección <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" v-model="interesado.direccion">
+								<label for="">Referencia <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" v-model="interesado.referencia">
+							</div>
+						</div>
+						<div v-else>
+							<p>Ud. No solicitó la opción de certificación</p>
+						</div>
+
+						<div class="d-grid">
+							<button class="btn btn-outline-secondary mt-2 btn-lg" @click="guardarInformacion"><i class="bi bi-upload"></i> Guardar y Enviar datos</button>
+						</div>
+					</div>
+				</div>
 			</div>
 
 		</div>
@@ -107,7 +185,8 @@
   createApp({
     data() {
       return {
-				interesado:{ idInteresado:-1}, bancos:[], dominio:''
+				interesado:{ idInteresado:-1, conCertificado:0, delivery:0, departamento:null, provincia:null, distrito:null, direccion:'', referencia:''},
+				bancos:[], dominio:'', departamentos:[], provincias:[], distritos:[]
       }
     },
 		mounted(){
@@ -132,6 +211,13 @@
 					method: 'POST', body:data
 				});
 				this.bancos = await respServBancos.json();
+
+				
+				data.set('pedir', 'departamento')
+				let respServDepartamentos = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:data
+				});
+				this.departamentos = await respServDepartamentos.json();
 			},
 		
 			
@@ -159,6 +245,34 @@
 				});
 				let temp = await respServ.text();
 				}
+			},
+			totalaPagar(aPagar, conCertificado){
+				if(conCertificado=='0'){
+					return aPagar;
+				}else{
+					return aPagar + this.interesado.pCertificado;
+				}
+			},
+			async cambiarDepartamento(){
+				this.interesado.provincia = null;
+				this.interesado.distrito = null;
+				let data = new FormData();
+				data.append('pedir', 'provincia')
+				data.append('idDepartamento', this.interesado.departamento)
+				let respServProvincias = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:data
+				});
+				this.provincias = await respServProvincias.json();
+			},
+			async cambiarProvincia(){
+				this.interesado.distrito = null;
+				let data = new FormData();
+				data.append('pedir', 'distrito')
+				data.append('idProvincia', this.interesado.provincia)
+				let respServDistritos = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:data
+				});
+				this.distritos = await respServDistritos.json();
 			}
 		}
   }).mount('#app')

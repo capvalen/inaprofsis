@@ -13,7 +13,7 @@ switch( $_POST['pedir']){
 function listar($db){
 	$filas = [];
 	
-	$sql = $db->prepare("SELECT /*interesado*/ ic.idInteresado,`nombres`, `apellidos`, `dni`, `celular`, `correo`, `colegio`, `ciudad`, `especialidad`, `llamada`, `dia`, `hora`, l.descripcion as desde, ic.id as idCursoInteresado, aPagar
+	$sql = $db->prepare("SELECT  ic.id as idCursoInteresado, ic.idInteresado,`nombres`, `apellidos`, `dni`, `celular`, `correo`, `colegio`, `ciudad`, `especialidad`, `llamada`, `dia`, `hora`, l.descripcion as desde, aPagar, conCertificado, concepto
 	FROM `interesados_curso` ic inner join interesados i on i.id = ic.idInteresado inner join lugares l on l.id = ic.idLugar where idCurso = ?
 	order by apellidos asc;");
 	if($sql->execute([ $_POST['id'] ])){
@@ -85,9 +85,9 @@ function borrar($db){
 function updatePago($db){
 	
 	$sql = $db->prepare('UPDATE `interesados_curso` set 
-		`aPagar`=? WHERE `id`= ? ;');
+		`aPagar`=?, concepto=?, conCertificado=? WHERE `id`= ? ;');
 	if($sql->execute([
-		$_POST['aPagar'],$_POST['id']
+		$_POST['aPagar'],$_POST['concepto'],$_POST['conCertificado'],$_POST['id']
 	])){
 		//echo $sql->debugDumpParams();
 		echo 1;
@@ -98,7 +98,7 @@ function updatePago($db){
 function listarInteresadoPago($db){
 	$filas = [];
 	
-	$sql = $db->prepare("SELECT /*interesado*/ ic.idInteresado,`nombres`, `apellidos`, `dni`, `celular`, `correo`, `colegio`, `ciudad`, `especialidad`, `llamada`, `dia`, `hora`, l.descripcion as desde, ic.id as idCursoInteresado, aPagar, c.nombre, c.foto
+	$sql = $db->prepare("SELECT /*interesado*/ ic.idInteresado,`nombres`, `apellidos`, `dni`, `celular`, `correo`, `colegio`, `ciudad`, `especialidad`, `llamada`, `dia`, `hora`, l.descripcion as desde, ic.id as idCursoInteresado, aPagar, c.nombre, c.foto, conCertificado, pCertificado, concepto, foto, c.id as idCurso
 	FROM `interesados_curso` ic inner join interesados i on i.id = ic.idInteresado inner join lugares l on l.id = ic.idLugar 
 	inner join cursos c on c.id = ic.idCurso
 	where ic.id = ? and ic.activo = 1 and pagado = 0

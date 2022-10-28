@@ -55,7 +55,7 @@ function agregar($db){
 	$sql = $db->prepare('INSERT INTO `cursos`(
 		`anio`, `idPrograma`, `idEvento`, `nombre`, `codigo`, 
 		`idModalidad`, `inicio`, `fechasLink`, `idHora`, `idConvenio`, 
-		`pGeneral`, `pExalumnos`, `pCorporativo`, `pPronto`, `pRemate`, 
+		`pGeneral`, `pExalumnos`, `pCorporativo`, `pPronto`, `pRemate`,pCertificado 
 		`pMediaBeca`, `pEspecial`, `idDocente`, `idDocenteReemplazo`, `temarioLink`, 
 		`temarioArchivo`, `idTipoCertificado`, `brochureLink`, `idEtapa`, `detalles`, 
 		`dataLink`, `vacantes`, `autorizacion`, `cambios`, `checkAlumnos`,
@@ -65,7 +65,7 @@ function agregar($db){
 		) VALUES (
 		?,?,?,?,?,
 		?,?,?,?,?,
-		?,?,?,?,?,
+		?,?,?,?,?,?,
 		?,?,?,?,?,
 		?,?,?,?,?,
 		?,?,?,?,?,
@@ -76,7 +76,7 @@ function agregar($db){
 	if($sql->execute([
 		$conv['anio'],$conv['idPrograma'],$conv['idEvento'],$conv['nombre'],$conv['codigo'],
 		$conv['idModalidad'],$conv['inicio'],$conv['fechasLink'],$conv['idHora'],$conv['idConvenio'],
-		$conv['pGeneral'],$conv['pExalumnos'],$conv['pCorporativo'],$conv['pPronto'],$conv['pRemate'],
+		$conv['pGeneral'],$conv['pExalumnos'],$conv['pCorporativo'],$conv['pPronto'],$conv['pRemate'],$conv['pCertificado'],
 		$conv['pMediaBeca'],$conv['pEspecial'],$conv['idDocente'],$conv['idDocenteReemplazo'],$conv['temarioLink'],
 		$conv['temarioArchivo'],$conv['idTipoCertificado'],$conv['brochureLink'],$conv['idEtapa'],$conv['detalles'],
 		$conv['dataLink'],$conv['vacantes'],$conv['autorizacion'],$conv['cambios'],$conv['checkAlumnos'], 
@@ -120,7 +120,7 @@ function actualizar($db){
 		`anio`=?, `idPrograma`=?, `idEvento`=?, `nombre`=?, `codigo`=?, 
 		`idModalidad`=?, `inicio`=?, `fechasLink`=?, `idHora`=?, `idConvenio`=?, 
 		`pGeneral`=?, `pExalumnos`=?, `pCorporativo`=?, `pPronto`=?, `pRemate`=?, 
-		`pMediaBeca`=?, `pEspecial`=?, `idDocente`=?, `idDocenteReemplazo`=?, `temarioLink`=?, 
+		`pMediaBeca`=?, `pEspecial`=?, pCertificado=?, `idDocente`=?, `idDocenteReemplazo`=?, `temarioLink`=?, 
 		`temarioArchivo`=?, `idTipoCertificado`=?, `brochureLink`=?, `idEtapa`=?, `detalles`=?, 
 		`dataLink`=?, `vacantes`=?, `autorizacion`=?, `cambios`=?, `checkAlumnos`=?,
 		`checkAfianzamiento`=?, `checkAprobados`=?, `idResponsable1`=?, `idResponsable2`=?, `prospectoLink`=?,
@@ -130,7 +130,7 @@ function actualizar($db){
 		$conv['anio'],$conv['idPrograma'],$conv['idEvento'],$conv['nombre'],$conv['codigo'],
 		$conv['idModalidad'],$conv['inicio'],$conv['fechasLink'],$conv['idHora'],$conv['idConvenio'],
 		$conv['pGeneral'],$conv['pExalumnos'],$conv['pCorporativo'],$conv['pPronto'],$conv['pRemate'],
-		$conv['pMediaBeca'],$conv['pEspecial'],$conv['idDocente'],$conv['idDocenteReemplazo'],$conv['temarioLink'],
+		$conv['pMediaBeca'],$conv['pEspecial'],$conv['pCertificado'],$conv['idDocente'],$conv['idDocenteReemplazo'],$conv['temarioLink'],
 		$conv['temarioArchivo'],$conv['idTipoCertificado'],$conv['brochureLink'],$conv['idEtapa'],$conv['detalles'],
 		$conv['dataLink'],$conv['vacantes'],$conv['autorizacion'],$conv['cambios'],$conv['checkAlumnos'], 
 		$conv['checkAfianzamiento'],$conv['checkAprobados'],$conv['idResponsable1'],$conv['idResponsable2'],$conv['prospectoLink'], 
@@ -326,8 +326,8 @@ function finalizar($db){
 			}
 			$sqlMatriculados->closeCursor();
 
-			$sobran = $_POST['vacantes'] - ($indice-1);
-			for ($i=$indice; $i <= $sobran ; $i++) {
+			$sobran = $_POST['vacantes']; //- ($indice-1)
+			for ($i=1; $i <= $sobran ; $i++) { //$i=$indice
 
 				$sqlMatricularCero = $db->prepare("INSERT INTO `matricula`(
 					`idCurso`, `idAlumno`, `fecha`, `idTipoMatricula`,`precio`,

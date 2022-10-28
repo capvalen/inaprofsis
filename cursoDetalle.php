@@ -84,7 +84,7 @@
 								</p>
 							</div>
 							<div class="col">
-								<p><strong>Vacantes</strong> <span>{{curso.vacantes}}/{{curso.cupos}}</span></p>
+								<p><strong>Vacantes disp.</strong> <span>{{curso.vacantes}}</span></p>
 							</div>
 							<div class="col">
 								<p><strong>Lista alumnos: </strong> 
@@ -582,6 +582,7 @@
 				if( parseInt(idResolucion) > 0){
 					this.curso.finalizado=1;
 					alert(`Guardado exitosamente con código: ${idResolucion}${codigo}`)
+					location.reload();
 				}else{
 					alert('Hubo un problema en el proceso, informe a soporte.')
 				}

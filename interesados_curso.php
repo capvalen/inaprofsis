@@ -13,7 +13,39 @@
 			<div class="col-12 ">
 				<div class="row col px-5">
 					<h1>Interesados del curso: <span class="text-capitalize">{{curso.nombre}}</span></h1>
-					<p>Lista de interesados del curso</p>
+					
+					<div class="card my-3">
+						<div class="card-body">
+							<p><strong>Listado de precios</strong></p>
+							<div class="row row-cols-2 row-cols-md-4">
+								<div class="col">
+									<p><strong>General</strong> <span>S/ {{monedaLatam(curso.pGeneral)}}</span></p>
+								</div>
+								<div class="col">
+									<p><strong>Ex. Alumnos</strong> <span>S/ {{monedaLatam(curso.pExalumnos)}}</span></p>
+								</div>
+								<div class="col">
+									<p><strong>Corporativo</strong> <span>S/ {{monedaLatam(curso.pCorporativo)}}</span></p>
+								</div>
+								<div class="col">
+									<p><strong>Pronto pago</strong> <span>S/ {{monedaLatam(curso.pPronto)}}</span></p>
+								</div>
+								<div class="col">
+									<p><strong>Remate</strong> <span>S/ {{monedaLatam(curso.pRemate)}}</span></p>
+								</div>
+								<div class="col">
+									<p><strong>Media beca</strong> <span>S/ {{monedaLatam(curso.pMediaBeca)}}</span></p>
+								</div>
+								<div class="col">
+									<p><strong>Especial</strong> <span>S/ {{monedaLatam(curso.pEspecial)}}</span></p>
+								</div>
+								<div class="col">
+									<p><strong>Certificación</strong> <span>S/ {{monedaLatam(curso.pCertificado)}}</span></p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<p><srtong>Lista de interesados:</srtong></p>
 
 					<div class="table-responsive">
 						<table class="table table-hover">

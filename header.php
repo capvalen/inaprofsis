@@ -66,6 +66,9 @@ function menu(){ ?>
 						<li><a class="dropdown-item" href="prospecto_curso.php">Cursos de Prospectos </a></li>
 					</ul>
 				</li>
+				<li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="configuraciones.php"><i class="bi bi-gear-wide"></i> Configuraciones</a>
+        </li>
 			</ul>
 
 		</div>

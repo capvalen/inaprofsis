@@ -313,8 +313,8 @@
 				}
 			},
 			async cambioDepa(e){
-				this.docente.provincia=null
-				this.docente.distrito=null
+				this.docente.idProvincia=null
+				this.docente.idDistrito=null
 				//console.log(e.target.value);
 				let datos =  new FormData();
 				datos.append('pedir', 'provincia')
@@ -325,7 +325,7 @@
 				this.provincias = await respServ.json();
 			},
 			async cambioProvi(e){
-				this.docente.distrito=null
+				this.docente.idDistrito=null
 				//console.log(e.target.value);
 				let datos =  new FormData();
 				datos.append('pedir', 'distrito')

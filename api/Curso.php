@@ -124,8 +124,9 @@ function actualizar($db){
 		`temarioArchivo`=?, `idTipoCertificado`=?, `brochureLink`=?, `idEtapa`=?, `detalles`=?, 
 		`dataLink`=?, `vacantes`=?, `autorizacion`=?, `cambios`=?, `checkAlumnos`=?,
 		`checkAfianzamiento`=?, `checkAprobados`=?, `idResponsable1`=?, `idResponsable2`=?, `prospectoLink`=?,
-		`grupo`=?, `catalogoLink`=?, `videoLink`=?,`foto`=?,`meta`=?
-		WHERE `id`= ? ;');
+		`grupo`=?, `catalogoLink`=?, `videoLink`=?,`foto`=?,`meta`=?,
+		idAutorizacion=?, oficioAlumnos=? WHERE `id`= ?
+		;');
 	if($sql->execute([
 		$conv['anio'],$conv['idPrograma'],$conv['idEvento'],$conv['nombre'],$conv['codigo'],
 		$conv['idModalidad'],$conv['inicio'],$conv['fechasLink'],$conv['idHora'],$conv['idConvenio'],
@@ -135,7 +136,7 @@ function actualizar($db){
 		$conv['dataLink'],$conv['vacantes'],$conv['autorizacion'],$conv['cambios'],$conv['checkAlumnos'], 
 		$conv['checkAfianzamiento'],$conv['checkAprobados'],$conv['idResponsable1'],$conv['idResponsable2'],$conv['prospectoLink'], 
 		$conv['grupo'],$conv['catalogoLink'],$conv['videoLink'],$conv['foto'],$conv['meta'],
-		$conv['id']
+		$conv['idAutorizacion'],$conv['oficioAlumnos'],$conv['id']
 	])){
 		echo 1;
 	}else{

@@ -176,6 +176,9 @@
 							<div class="col">
 								<p><strong>Especial</strong> <span>S/ {{monedaLatam(curso.pEspecial)}}</span></p>
 							</div>
+							<div class="col">
+								<p><strong>Certificación</strong> <span>S/ {{monedaLatam(curso.pCertificado)}}</span></p>
+							</div>
 						</div>
 					</div>
 				</div>

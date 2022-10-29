@@ -8,44 +8,69 @@ switch( $_POST['pedir']){
 	case 'delete': borrar($db); break;
 	case 'deleteMatricula': borrarMatricula($db); break;
 	case 'matriculas': matriculas($db); break;
-
+	case 'refreshEspecialidad': refreshEspecialidad($db); break;
 }
 
 function listar($db){
 	$filas = [];
 	$filtro = '';
 	if( isset($_POST['id']) ){ $filtro = 'and a.id = '.$_POST['id'];}
-	if( isset($_POST['idEspecialidad']) ){ $filtro .= ' and idEspecialidad = '.$_POST['idEspecialidad'];}
+	/* if( isset($_POST['idEspecialidad']) ){ $filtro .= ' and idEspecialidad = '.$_POST['idEspecialidad'];} */
 	if( isset($_POST['texto']) ){ $filtro .= ' and (nombres like "%'.$_POST['texto'].'%" or apellidos like "%'.$_POST['texto'].'%" or dni = "'.$_POST['texto'].'" )';}
 	//echo $filtro;
-	$sql = $db->query("SELECT a.*, e.descripcion as nomEspecialidad from alumnos a inner join especialidades e on e.id = a.idEspecialidad where a.activo =1 {$filtro} order by apellidos asc;");
+	$sql = $db->query("SELECT a.* from alumnos a  where a.activo =1 and a.id<>1 {$filtro} order by apellidos asc;"); //, e.descripcion as nomEspecialidad
+	//inner join  especialidades e on e.id = a.idEspecialidad
 	if($sql->execute()){
 		while($row = $sql->fetch(PDO::FETCH_ASSOC)){
-			$filas[]= $row;
+			$especialidades = [];
+			
+			$sqlEspe = $db->query("SELECT ae.*, e.descripcion from alumnos_especialidades ae
+			inner join especialidades e on e.id = ae.idEspecialidad
+			where idAlumno = {$row['id']};");
+			$sqlEspe->execute();
+			while($rowEspecialidades = $sqlEspe->fetch(PDO::FETCH_ASSOC)){
+				$especialidades[] = $rowEspecialidades;
+			}
+
+			//$filas[]= $row;
+			$filas[]= array_merge($row, array('especialidades'=> $especialidades));
 		}
+		
 		echo json_encode($filas);
 	}
 }
 function agregar($db){
 	$conv = json_decode($_POST['alumno'], true);
+	$espe = json_decode($_POST['aluEspecialidades'], true);
+	
 	if($conv['fechaNacimiento']==''){ $conv['fechaNacimiento']=null;}
 	
 	$sql = $db->prepare('INSERT INTO `alumnos`(
 		`nombres`, `apellidos`, `dni`, `conciliador`, `fechaNacimiento`, 
 		`celular1`, `celular2`, `correo1`, `correo2`, `whatsapp`, 
-		`direccion`, `lugarTrabajo`, `hijos`, `idEspecialidad`, `idMorosidad`, 
-		`detalle`) VALUES (
+		`direccion`, `lugarTrabajo`, `hijos`,  `idMorosidad`, 
+		`detalle`,idDepartamento, idProvincia, idDistrito) VALUES (
 		?,?,?,?,?,
 		?,?,?,?,?,
-		?,?,?,?,?,
-		?);');
+		?,?,?,?,
+		?,?,?,?);');
 	if($sql->execute([
 		$conv['nombres'],$conv['apellidos'],$conv['dni'],$conv['conciliador'],$conv['fechaNacimiento'],
 		$conv['celular1'],$conv['celular2'],$conv['correo1'],$conv['correo2'],$conv['whatsapp'],
-		$conv['direccion'],$conv['lugarTrabajo'],$conv['hijos'],$conv['idEspecialidad'],$conv['idMorosidad'],
-		$conv['detalle']
+		$conv['direccion'],$conv['lugarTrabajo'],$conv['hijos'],$conv['idMorosidad'],
+		$conv['detalle'],$conv['idDepartamento'],$conv['idProvincia'],$conv['idDistrito']
 	])){
-		echo $db->lastInsertId();
+		$idAlumno = $db->lastInsertId();
+		$sql->closeCursor();
+
+		$sqlEspe ="DELETE FROM `alumnos_especialidades` WHERE idAlumno = {$idAlumno}; ";
+		for ($i=0; $i < count($espe) ; $i++) { 
+			$sqlEspe .= "INSERT INTO `alumnos_especialidades`(`idAlumno`, `idEspecialidad`) VALUES (
+				{$idAlumno}, {$espe[$i]['id']}
+			);";
+		}
+		$db->query($sqlEspe);
+		echo $idAlumno;
 	}else{
 		echo -1;
 	}
@@ -56,13 +81,13 @@ function actualizar($db){
 	$sql = $db->prepare('UPDATE `alumnos` set 
 		`nombres`=?, `apellidos`=?, `dni`=?, `conciliador`=?, `fechaNacimiento`=?, 
 		`celular1`=?, `celular2`=?, `correo1`=?, `correo2`=?, `whatsapp`=?, 
-		`direccion`=?, `lugarTrabajo`=?, `hijos`=?, `idEspecialidad`=?, `idMorosidad`=?, 
-		`detalle`=? WHERE `id`= ? ;');
+		`direccion`=?, `lugarTrabajo`=?, `hijos`=?, `idMorosidad`=?, 
+		`detalle`=?, idDepartamento=?, idProvincia=?, idDistrito=? WHERE `id`= ? ;');
 	if($sql->execute([
 		$conv['nombres'],$conv['apellidos'],$conv['dni'],$conv['conciliador'],$conv['fechaNacimiento'],
 		$conv['celular1'],$conv['celular2'],$conv['correo1'],$conv['correo2'],$conv['whatsapp'],
-		$conv['direccion'],$conv['lugarTrabajo'],$conv['hijos'],$conv['idEspecialidad'],$conv['idMorosidad'],
-		$conv['detalle'], $conv['id']
+		$conv['direccion'],$conv['lugarTrabajo'],$conv['hijos'],$conv['idMorosidad'],
+		$conv['detalle'],$conv['idDepartamento'],$conv['idProvincia'],$conv['idDistrito'], $conv['id']
 	])){
 		//echo $sql->debugDumpParams();
 		echo 1;
@@ -154,6 +179,20 @@ function matriculas($db){
 
 		echo json_encode(array_merge($filas, array(1=>$matriculas)));
 	}
+}
+
+function refreshEspecialidad($db){
+	$idAlumno = $_POST['idAlumno'];
+	$espe = json_decode($_POST['aluEspecialidades'], true);
+
+	$sqlEspe ="DELETE FROM `alumnos_especialidades` WHERE idAlumno = {$idAlumno}; ";
+	for ($i=0; $i <count($espe) ; $i++) { 
+		$sqlEspe .= "INSERT INTO `alumnos_especialidades`(`idAlumno`, `idEspecialidad`) VALUES (
+			{$idAlumno}, {$espe[$i]['id']}
+		);";
+	}
+	$db->query($sqlEspe);
+	echo $idAlumno;
 }
 
 ?>

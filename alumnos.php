@@ -97,6 +97,18 @@
 					<input type="text" class="form-control"  v-model="alumno.correo2">
 					<label for="">Fecha de nacimiento</label>
 					<input type="date" class="form-control"  v-model="alumno.fechaNacimiento">
+					<label for="">Departamento</label>
+					<select class="form-select" v-model="alumno.idDepartamento" @change="cambioDepa($event)">
+						<option v-for="departamento in departamentos" :value="departamento.idDepa">{{departamento.departamento}}</option>
+					</select>
+					<label for="">Provincia</label>
+					<select class="form-select" v-model="alumno.idProvincia" @change="cambioProvi($event)">
+						<option v-for="provincia in provincias"  :value="provincia.idProv">{{provincia.provincia}}</option>
+					</select>
+					<label for="">Distrito</label>
+					<select class="form-select" v-model="alumno.idDistrito">
+						<option v-for="distrito in distritos"  :value="distrito.idDist">{{distrito.distrito}}</option>
+					</select>
 					<label for="">Dirección</label>
 					<input type="text" class="form-control"  v-model="alumno.direccion">
 					<label for="">Lugar de trabajo</label>
@@ -104,10 +116,23 @@
 					<label for="">N° Hijos</label>
 					<input type="number" class="form-control"  v-model="alumno.hijos">
 					<label for="">Especialidad</label>
-					<select class="form-select" v-model="alumno.idEspecialidad" id="sltEspecialidad1">
-						<option value="-1">Todos</option>
-						<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
-					</select>
+					<div class="container-fluid row px-0">
+						<div class="col">
+							<select class="form-select" v-model="alumno.idEspecialidad" id="sltEspecialidad1">
+								<option v-for="especialidad in especialidades" :value="especialidad.id">{{especialidad.descripcion}}</option>
+							</select>
+						</div>
+						<div class="col-1">
+							<button class="btn btn-outline-primary border-0" @click="agregarEspecialidad"><i class="bi bi-plus-circle"></i></button>
+						</div>
+					</div>
+					<div id="especialidades" class="my-2">
+						<button v-for="(aluEspecial, index) in aluEspecialidades" type="button" class="btn btn-outline-secondary position-relative mb-2 me-2" @click="borrarEspecialidad(index)">
+							{{aluEspecial.descripcion}}
+							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+							</span>
+						</button>
+					</div>
 					<label for="">Morosidad</label>
 					<select class="form-select" v-model="alumno.idMorosidad">
 						<option value="1">Niguno</option>
@@ -140,10 +165,10 @@
 	createApp({
 		data() {
 			return {
-				alumnos:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',
+				alumnos:[], especialidades:[], actualizacion:false, especialidadSearch:-1, texto:'',departamentos:[], provincias:[], distritos:[], aluEspecialidades:[],
 				alumno :{
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', conciliador:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', whatsapp:'', direccion:'', lugarTrabajo:'', hijos:0,  idMorosidad:1, detalle:''
+					nombres:'', apellidos:'', dni:'', conciliador:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', whatsapp:'', direccion:'', lugarTrabajo:'', hijos:0,  idMorosidad:1, detalle:'', idDepartamento:-1, idProvincia: null,idDistrito:null
 				}
 			}
 		},
@@ -155,7 +180,7 @@
 			limpiarPrincipal(){
 				this.alumno = {
 					idEspecialidad:1,
-					nombres:'', apellidos:'', dni:'', conciliador:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', whatsapp:'', direccion:'', lugarTrabajo:'', hijos:0,  idMorosidad:1, detalle:''
+					nombres:'', apellidos:'', dni:'', conciliador:'', fechaNacimiento:'', celular1:'', celular2:'', correo1:'', correo2:'', whatsapp:'', direccion:'', lugarTrabajo:'', hijos:0,  idMorosidad:1, detalle:'', idDepartamento:-1, idProvincia: null,idDistrito:null
 				}
 			},
 			async pedirAlumnos(){
@@ -174,11 +199,18 @@
 					method: 'POST', body:data
 				});
 				this.especialidades = await respServ.json()
+
+				data.set('pedir', 'departamento');
+				let respServDepartamento = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:data
+				});
+				this.departamentos = await respServDepartamento.json()
 			},
 			async agregarAlumno(){
 				let data = new FormData();
 				data.append('pedir', 'add')
 				data.append('alumno', JSON.stringify(this.alumno));
+				data.append('aluEspecialidades', JSON.stringify(this.aluEspecialidades));
 				let respServ = await fetch('./api/Alumno.php',{
 					method: 'POST', body:data
 				});
@@ -189,9 +221,17 @@
 					alert('alumno guardado exitosamente')
 				}
 			},
-			editarAlumno(mIndex){
+			async editarAlumno(mIndex){
 				this.queIndex = mIndex;
 				this.alumno = JSON.parse(JSON.stringify(this.alumnos[mIndex]));
+				this.aluEspecialidades = JSON.parse(JSON.stringify(this.alumnos[mIndex].especialidades))
+				/* let data = new FormData();
+				data.append('pedir', 'listarEspecialidades')
+				data.append('idAlumno', this.alumno.id);
+				let respServ = await fetch('./api/Alumno.php',{
+					method: 'POST', body:data
+				});
+				let resp = await respServ.text() */
 				this.actualizacion=true;
 			},
 			async actualizarAlumno(){
@@ -236,12 +276,81 @@
 				this.alumnos = await respServ.json();
 				
 			},
+			async cambioDepa(e){
+				this.alumno.idProvincia=null
+				this.alumno.idDistrito=null
+				//console.log(e.target.value);
+				let datos =  new FormData();
+				datos.append('pedir', 'provincia')
+				datos.append('idDepartamento', e.target.value)
+				let respServ = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:datos
+				});
+				this.provincias = await respServ.json();
+			},
+			async cambioProvi(e){
+				this.alumno.idDistrito=null
+				//console.log(e.target.value);
+				let datos =  new FormData();
+				datos.append('pedir', 'distrito')
+				datos.append('idProvincia', e.target.value)
+				let respServ = await fetch('./api/Ubigeo.php',{
+					method: 'POST', body:datos
+				});
+				this.distritos = await respServ.json();
+			},
+			async cuentasDocente(index){
+				this.cuentas=[];
+				this.indexGlobal = index;
+				this.idDocenteGlobal = this.docentes[index].id;
+				this.docente.nombres = this.docentes[index].nombres;
+				this.docente.apellidos = this.docentes[index].apellidos;
+				let datos =  new FormData();
+				datos.append('pedir', 'listarCuentas')
+				datos.append('idDocente', this.idDocenteGlobal)
+				let respServ = await fetch('./api/Docente.php',{
+					method: 'POST', body:datos
+				});
+				this.cuentas = await respServ.json();
+				this.crearCuenta=false;
+				modalCuentas.show();
+			},
 			fechaLatam(fechita){
 				if(fechita == '' || fechita == null){
 					return '';
 				}else{
 					return moment(fechita).format('DD/MM/YYYY')
 				}
+			},
+			agregarEspecialidad(){
+				var idEsp = document.getElementById('sltEspecialidad1').value;
+				let coincidencia = this.aluEspecialidades.filter(y=> y.id==idEsp)
+				if(coincidencia.length==0){
+					let queEs = this.especialidades.filter(x=> x.id==idEsp);
+					this.aluEspecialidades.push({
+						id: idEsp , descripcion: queEs[0].descripcion
+					});
+					//actualiza en automático si actualizacion es true
+					if(this.actualizacion){
+						document.getElementById('sltEspecialidad1').value=null;
+						this.updateEspecialidad();
+					}
+				}
+			},
+			async updateEspecialidad(){
+				let data = new FormData();
+				data.append('pedir', 'refreshEspecialidad'),
+				data.append('idAlumno', this.alumno.id),
+				data.append('aluEspecialidades', JSON.stringify(this.aluEspecialidades))
+				let respServ = await fetch('./api/Alumno.php',{
+					method: 'POST', body:data
+				});
+				let queResp = await respServ.text()
+				console.log(queResp);
+			},
+			borrarEspecialidad(index){
+				this.aluEspecialidades.splice(index, 1);
+				this.updateEspecialidad();
 			}
 		}
 	}).mount('#app')

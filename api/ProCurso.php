@@ -22,7 +22,7 @@ function listar($db){
 	FROM cursos c
 	left join prospecto_curso pc on pc.idCurso = c.id
 	left join colaboradores co on co.id = pc.idResponsable
-	where c.activo = 1 {$filtro} 
+	where c.activo = 1 {$filtro} and c.idEtapa <> 7
 	order by inicio desc
 	;");
 	if($sql->execute()){

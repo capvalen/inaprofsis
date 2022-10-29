@@ -58,6 +58,7 @@
 								<th>Evento</th>
 								<th>Año</th>
 								<th>Fecha</th>
+								<th>Data</th>
 								<th>@</th>
 						
 							</thead>
@@ -71,6 +72,9 @@
 									<td>{{curso.desEvento}}</td>
 									<td>{{curso.anio}}</td>
 									<td>{{fechaLatam(curso.inicio)}}</td>
+									<td>
+										<a :href="curso.dataLink==''? 'cursoDetalle.php?id='+curso.id : curso.dataLink" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+									</td>
 									<td  style='white-space: nowrap'>
 										<button type="button" class="btn btn-outline-primary btn-sm border-0" @click="editarCurso(index)"><i class="bi bi-pencil-square"></i></button>
 										<button type="button" class="btn btn-outline-danger btn-sm border-0" @click="eliminarCurso(curso.id, index)"><i class="bi bi-x-circle-fill"></i></button>
@@ -193,9 +197,15 @@
 					<input type="text" class="form-control" v-model="curso.dataLink">
 					<label for="">Vacantes disponibles</label>
 					<input type="text" class="form-control" v-model="curso.vacantes">
+					<label for="">Estado de Autorización</label>
+					<select class="form-select" id="" v-model="curso.idAutorizacion">
+						<option v-for="autorizacion in autorizaciones" :value="autorizacion.id">{{autorizacion.descripcion}}</option>
+					</select>
 					<label for="">Autorización (archivo)</label>
 					<input type="file" class="form-control" v-model="curso.autorizacion">
-					<label for="">Cambios realizados</label>
+
+					
+					<label for="">Post Cambios realizados</label>
 					<textarea class="form-control" rows="3" v-model="curso.detalles"></textarea>
 					<label for="">Lista de alumnos enviado:</label>
 					<div class="form-check">
@@ -205,6 +215,8 @@
 							<span v-else>Enviado</span>
 						</label>
 					</div>
+					<label v-show="curso.checkAlumnos" for="">N° Oficio de Listado alumnos</label>
+					<input v-show="curso.checkAlumnos" type="text" class="form-control" v-model="oficioAlumnos">
 					<label for="">Lista de Afianzamiento:</label>
 					<div class="form-check">
 						<input class="form-check-input" type="checkbox" value="" id="checkAfianzamiento" v-model="curso.checkAfianzamiento" :checked="curso.checkAfianzamiento" :value="curso.checkAfianzamiento">
@@ -273,9 +285,9 @@
   createApp({
     data() {
       return {
-				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false, texto:'', programaSearch:-1, eventoSearch:-1,anioSearch:'',
+				cursos:[], programas:[], eventos:[], modalidades:[], convenios:[], docentes:[], tipoCertificados:[], etapas:[], horas:[], colaboradores:[], actualizacion:false, texto:'', programaSearch:-1, eventoSearch:-1,anioSearch:'',autorizaciones:[],
 				curso:{
-					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, pCertificado:30, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0, pCertificado:30, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0, idAutorizacion:1, oficioAlumnos:''
 				},
 				puedeGuardar:false, correlativo:-1
       }
@@ -287,7 +299,7 @@
 		methods:{
 			limpiarPrincipal(){
 				this.curso = {
-					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0,pCertificado:30, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0
+					anio: moment().format('YYYY'), idPrograma:1, idEvento:1, idEspecialidad:1, nombre:'', idModalidad:1, inicio:moment().format('YYYY-MM-DD'), fechasLink:'', idHora:1, idConvenio:1, pGeneral:0, pExalumnos:0, pCorporativo:0, pPronto:0, pRemate:0, pMediaBeca:0, pEspecial:0,pCertificado:30, idDocente:1, idDocenteReemplazo:1, temarioLink:'', temarioArchivo:'',  idTipoCertificado:1, brochureLink:'', idEtapa:1, detalles:'', dataLink:'', vacantes:0, autorizacion:'', cambios:'', checkAlumnos:0, checkAfianzamiento:0, checkAprobados:0, idResponsable1:1, idResponsable2:1, prospectoLink:'', grupo:'', catalogoLink:'', videoLink:'',  codigo:'', foto:'', meta:0, idAutorizacion:1, oficioAlumnos:''
 				};
 			},
 			async pedirCursos(){
@@ -343,6 +355,10 @@
 					method: 'POST', body:data
 				});
 				this.colaboradores = await respServColaboradores.json();
+				let respServAutorizaciones = await fetch('./api/Autorizaciones.php',{
+					method: 'POST', body:data
+				});
+				this.autorizaciones = await respServAutorizaciones.json();
 			},
 			async agregarCurso(){
 				let data = new FormData();

@@ -8,6 +8,7 @@ function cabecera($titulo){
 	<title><?= $titulo ." - INAPROF INTRANET"; ?></title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+	<link rel="shortcut icon" href="https://esderecho.pe/wp-content/uploads/2022/11/favicon.png" type="image/png">
 </head>
 	<?php
 }
@@ -64,6 +65,8 @@ function menu(){ ?>
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="navbarVentas">
 						<li><a class="dropdown-item" href="prospecto_curso.php">Cursos de Prospectos </a></li>
+						<li><a class="dropdown-item" href="#!">Verificar pagos </a></li>
+						<li><a class="dropdown-item" href="#!">Delivery's </a></li>
 					</ul>
 				</li>
 				<li class="nav-item">

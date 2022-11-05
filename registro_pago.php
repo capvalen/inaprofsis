@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
-	<title>Registro de pagos</title>
+	<title>Inscripción</title>
 </head>
 <body>
 	<style>
@@ -28,7 +28,7 @@
 		<div class="mb-3" id="divLogo">
 			<img src="https://esderecho.pe/wp-content/uploads/2022/06/esDerecho_transparente.png" alt="">
 		</div>
-		<h1>Registro de pago</h1>
+		<h1>Inscripción</h1>
 		<div class="row" v-if="interesado.idInteresado>0">
 			<div class="col-12 col-md-5 p-3">
 				<p>Por favor rellene y confirme sus datos</p>
